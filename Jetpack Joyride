@@ -1,7 +1,31 @@
 from cmu_graphics import *
 import math,copy
-from PIL import Image
+#from PIL import Image
 import os, pathlib
+
+#FROM CMU CS ACADEMY
+def drawBoard(app):
+    for row in range(app.rows):
+        for col in range(app.cols):
+            drawCell(app, row, col)
+
+def drawCell(app, row, col):
+    cellLeft, cellTop = getCellLeftTop(app, row, col)
+    cellWidth, cellHeight = getCellSize(app)
+    drawRect(cellLeft, cellTop, cellWidth, cellHeight,
+             fill=None, border='black',
+             borderWidth=app.cellBorderWidth)
+
+def getCellLeftTop(app, row, col):
+    cellWidth, cellHeight = getCellSize(app)
+    cellLeft = app.boardLeft + col * cellWidth
+    cellTop = app.boardTop + row * cellHeight
+    return (cellLeft, cellTop)
+
+def getCellSize(app):
+    cellWidth = app.boardWidth / app.cols
+    cellHeight = app.boardHeight / app.rows
+    return (cellWidth, cellHeight)
 
 ##scaffolding for game function
 def onAppStart(app):
@@ -18,9 +42,15 @@ def onAppStart(app):
     app.playing=False
     #app.playingScreen=image
     app.stepsPerSecond=1
+    app.width=400
+    app.height=420
+    app.boardWidth=800
+    app.boardheight=400
+    app.rows=app.boardHeight/2
+    app.cols=app.boardWidth/2
+    app.cellBorderWidth=2
     app.steps=0
-    zapperList=[]
-    resetApp(app)
+    #zapperList=[]
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -51,7 +81,12 @@ def onStep(app):
     if app.playing:
         app.steps+=1
         #app.playingScreen to the left and loop image
-        #if app.StepsPerSecond%something
+        #if app.steps%something
             #addzapper to ZapperList
     else:
         app.steps=0
+
+def redrawAll(app):
+    drawBoard(app)
+
+
