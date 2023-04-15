@@ -1,5 +1,6 @@
 from cmu_graphics import *
 import math,copy
+import random
 #from PIL import Image
 #import os, pathlib
 
@@ -31,7 +32,7 @@ def onAppStart(app):
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
-    #zapperList=[]
+    app.zapperList=[zapper(5,0,3)]
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -62,26 +63,41 @@ def onStep(app):
     if app.playing:
         app.steps+=1
         #app.playingScreen to the left and loop image
-        #if app.steps%something
+        if app.steps%10:
+            pass
             #addzapper to ZapperList
     else:
         app.steps=0
 
 def redrawAll(app):
     drawBoard(app)
-    drawZapper(app,5,2,app.rows-2)
+    for zapper in app.zapperList:
+        drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow)
+
 
 #Obstacles***
 #angles: 0=horizontal,1=45 degrees, 2=vertical, 3=135 degrees
 #pixels: in range of 1/2? of app.rows--longer zappers are less likely?
+class zapper:
+    def __init__(self,pixels,angle,heightRow):
+        self.pixels=pixels
+        self.angle=angle
+        self.heightRow=heightRow
+
 def drawZapper(app,pixels,angle,heightRow):
-    col=((app.cols*3)//4)-1
+    col=((app.cols*3)//4)-5
     if angle==0:
         for i in range (pixels):
             app.board[heightRow][col]='yellow'
             col+=1
     elif angle==1:
-        pass
+        #to check make sure the zapper is in the board
+        while ((heightRow-pixels)<-1):
+            heightRow+=1
+        for i in range(pixels):
+            app.board[heightRow][col]='yellow'
+            heightRow-=1
+            col+=1
     elif angle==2:
         #to check make sure the zapper is in the board
         while ((heightRow+pixels)>app.rows):
