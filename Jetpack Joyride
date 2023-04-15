@@ -20,14 +20,14 @@ def onAppStart(app):
     app.playing=False
     #app.playingScreen=image
     app.stepsPerSecond=1
-    app.width=800
-    app.height=400
-    app.boardWidth=1200
-    app.boardHeight=360
-    app.rows=app.boardHeight//20
-    app.cols=app.boardWidth//20
+    app.width=900
+    app.height=(app.width//2)
+    app.boardWidth=(app.width*4)//3
+    app.boardHeight=(app.height*9)//10
+    app.rows=app.boardHeight//30
+    app.cols=app.boardWidth//30
     app.boardLeft=0
-    app.boardTop=20
+    app.boardTop=(app.height-app.boardHeight)//2
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
@@ -69,17 +69,35 @@ def onStep(app):
 
 def redrawAll(app):
     drawBoard(app)
-    drawZapper(app,5,0,2)
+    drawZapper(app,5,2,app.rows-2)
 
 #Obstacles***
 #angles: 0=horizontal,1=45 degrees, 2=vertical, 3=135 degrees
 #pixels: in range of 1/2? of app.rows--longer zappers are less likely?
 def drawZapper(app,pixels,angle,heightRow):
-    col=(app.cols*2)//3
+    col=((app.cols*3)//4)-1
     if angle==0:
         for i in range (pixels):
             app.board[heightRow][col]='yellow'
             col+=1
+    elif angle==1:
+        pass
+    elif angle==2:
+        #to check make sure the zapper is in the board
+        while ((heightRow+pixels)>app.rows):
+            heightRow-=1
+        for i in range(pixels):
+            app.board[heightRow][col]='yellow'
+            heightRow+=1
+    elif angle==3:
+        #to check make sure the zapper is in the board
+        while ((heightRow+pixels)>app.rows):
+            heightRow-=1
+        for i in range(pixels):
+            app.board[heightRow][col]='yellow'
+            heightRow+=1
+            col+=1
+
 
 #FROM CMU CS ACADEMY
 def drawBoard(app):
