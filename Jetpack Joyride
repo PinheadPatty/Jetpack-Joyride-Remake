@@ -22,17 +22,21 @@ def onAppStart(app):
     #app.playingScreen=image
     app.stepsPerSecond=3
     app.width=900
+    app.divisor=30
     app.height=(app.width//2)
     app.boardWidth=(app.width*4)//3
     app.boardHeight=(app.height*9)//10
-    app.rows=app.boardHeight//30
-    app.cols=app.boardWidth//30
+    app.rows=app.boardHeight//app.divisor
+    app.cols=app.boardWidth//app.divisor
     app.boardLeft=0
     app.boardTop=(app.height-app.boardHeight)//2
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
     app.zapperList=[]
+    app.playerCx=app.boardWidth*(5//app.divisor)
+    app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
+    app.playerRadius=(app.boardHeight//app.rows)
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -78,6 +82,7 @@ def onStep(app):
 
 def redrawAll(app):
     drawBoard(app)
+    drawPlayerHitbox(app)
     for zapper in app.zapperList:
         drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow,zapper.col)
 
@@ -129,6 +134,10 @@ def addZapper(app):
     randRowHeight=random.randrange(app.rows)
     initialCol=((app.cols*3)//4)
     app.zapperList.append(zapper(randPixels,randAngle,randRowHeight,initialCol))
+##missiles
+##player
+def drawPlayerHitbox(app):
+    drawCircle(app.playerCx,app.playerCy,app.playerRadius,border='black',fill=None)
 
 #FROM CMU CS ACADEMY
 def drawBoard(app):
