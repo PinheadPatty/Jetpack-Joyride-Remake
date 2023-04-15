@@ -109,14 +109,14 @@ def drawZapper(app,pixels,angle,heightRow,col):
             col+=1
     elif angle==2:
         #to check make sure the zapper is in the board
-        while ((heightRow+pixels)>=app.rows):
+        while ((heightRow+pixels)>app.rows):
             heightRow-=1
         for i in range(pixels):
             drawCell(app,heightRow,col,'yellow')
             heightRow+=1
     elif angle==3:
         #to check make sure the zapper is in the board
-        while ((heightRow+pixels)>=app.rows):
+        while ((heightRow+pixels)>app.rows):
             heightRow-=1
         for i in range(pixels):
             drawCell(app,heightRow,col,'yellow')
