@@ -1,31 +1,7 @@
 from cmu_graphics import *
 import math,copy
 #from PIL import Image
-import os, pathlib
-
-#FROM CMU CS ACADEMY
-def drawBoard(app):
-    for row in range(app.rows):
-        for col in range(app.cols):
-            drawCell(app, row, col)
-
-def drawCell(app, row, col):
-    cellLeft, cellTop = getCellLeftTop(app, row, col)
-    cellWidth, cellHeight = getCellSize(app)
-    drawRect(cellLeft, cellTop, cellWidth, cellHeight,
-             fill=None, border='black',
-             borderWidth=app.cellBorderWidth)
-
-def getCellLeftTop(app, row, col):
-    cellWidth, cellHeight = getCellSize(app)
-    cellLeft = app.boardLeft + col * cellWidth
-    cellTop = app.boardTop + row * cellHeight
-    return (cellLeft, cellTop)
-
-def getCellSize(app):
-    cellWidth = app.boardWidth / app.cols
-    cellHeight = app.boardHeight / app.rows
-    return (cellWidth, cellHeight)
+#import os, pathlib
 
 ##scaffolding for game function
 def onAppStart(app):
@@ -43,11 +19,13 @@ def onAppStart(app):
     #app.playingScreen=image
     app.stepsPerSecond=1
     app.width=400
-    app.height=420
+    app.height=440
     app.boardWidth=800
-    app.boardheight=400
-    app.rows=app.boardHeight/2
-    app.cols=app.boardWidth/2
+    app.boardHeight=400
+    app.rows=app.boardHeight//20
+    app.cols=app.boardWidth//20
+    app.boardLeft=0
+    app.boardTop=20
     app.cellBorderWidth=2
     app.steps=0
     #zapperList=[]
@@ -89,4 +67,32 @@ def onStep(app):
 def redrawAll(app):
     drawBoard(app)
 
+#FROM CMU CS ACADEMY
+def drawBoard(app):
+    for row in range(app.rows):
+        for col in range(app.cols):
+            drawCell(app, row, col)
 
+def drawCell(app, row, col):
+    cellLeft, cellTop = getCellLeftTop(app, row, col)
+    cellWidth, cellHeight = getCellSize(app)
+    drawRect(cellLeft, cellTop, cellWidth, cellHeight,
+             fill=None, border='black',
+             borderWidth=app.cellBorderWidth)
+
+def getCellLeftTop(app, row, col):
+    cellWidth, cellHeight = getCellSize(app)
+    cellLeft = app.boardLeft + col * cellWidth
+    cellTop = app.boardTop + row * cellHeight
+    return (cellLeft, cellTop)
+
+def getCellSize(app):
+    cellWidth = app.boardWidth / app.cols
+    cellHeight = app.boardHeight / app.rows
+    return (cellWidth, cellHeight)
+
+def main():
+    runApp()
+
+if __name__=='__main__':
+    main()
