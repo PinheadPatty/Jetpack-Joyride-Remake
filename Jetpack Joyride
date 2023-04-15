@@ -71,9 +71,10 @@ def redrawAll(app):
 
 #Obstacles***
 #angles: 0=horizontal,1=45 degrees, 2=vertical, 3=135 degrees
-#pixels: 
-def drawZapper(pixels,angle):
-    pass
+#pixels: in range of 3/4 of app.cols--longer zappers are less likely?
+def drawZapper(pixels,angle,height):
+    if angle==0:
+        pass
 
 #FROM CMU CS ACADEMY
 def drawBoard(app):
@@ -87,6 +88,17 @@ def drawCell(app, row, col):
     drawRect(cellLeft, cellTop, cellWidth, cellHeight,
              fill=None, border='black',
              borderWidth=app.cellBorderWidth)
+
+def getCell(app, x, y):
+    dx = x - app.boardLeft
+    dy = y - app.boardTop
+    cellWidth, cellHeight = getCellSize(app)
+    row = math.floor(dy / cellHeight)
+    col = math.floor(dx / cellWidth)
+    if (0 <= row < app.rows) and (0 <= col < app.cols):
+      return (row, col)
+    else:
+      return None
 
 def getCellLeftTop(app, row, col):
     cellWidth, cellHeight = getCellSize(app)
