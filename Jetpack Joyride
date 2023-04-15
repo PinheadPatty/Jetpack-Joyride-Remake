@@ -1,3 +1,3 @@
-print('Term Project')
-print(7)
-print(8)
+from cmu_graphics import *
+import math,copy
+from PIL import Image
