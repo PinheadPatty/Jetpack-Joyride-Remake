@@ -65,7 +65,8 @@ def onStep(app):
         #move the screen
         for zapper in app.zapperList:
             zapper.col-=1
-            if zapper.col<0:
+        for zapper in app.zapperList:
+            if (zapper.col+zapper.pixels<0):
                 app.zapperList.remove(zapper)
 
         #app.playingScreen to the left and loop image
@@ -90,6 +91,8 @@ class zapper:
         self.angle=angle
         self.heightRow=heightRow
         self.col=col
+    def __repr__(self):
+        return f'col:{self.col},{self.pixels} pixels'
 
 def drawZapper(app,pixels,angle,heightRow,col):
     if angle==0:
@@ -106,14 +109,14 @@ def drawZapper(app,pixels,angle,heightRow,col):
             col+=1
     elif angle==2:
         #to check make sure the zapper is in the board
-        while ((heightRow+pixels)>app.rows):
+        while ((heightRow+pixels)>=app.rows):
             heightRow-=1
         for i in range(pixels):
             drawCell(app,heightRow,col,'yellow')
             heightRow+=1
     elif angle==3:
         #to check make sure the zapper is in the board
-        while ((heightRow+pixels)>app.rows):
+        while ((heightRow+pixels)>=app.rows):
             heightRow-=1
         for i in range(pixels):
             drawCell(app,heightRow,col,'yellow')
@@ -121,9 +124,9 @@ def drawZapper(app,pixels,angle,heightRow,col):
             col+=1
 
 def addZapper(app):
-    randPixels=random.randrange(3,(2*app.rows)//3+1)
+    randPixels=random.randrange(3,(2*app.rows)//3)
     randAngle=random.randrange(4)
-    randRowHeight=random.randrange(app.rows+1)
+    randRowHeight=random.randrange(app.rows)
     initialCol=((app.cols*3)//4)
     app.zapperList.append(zapper(randPixels,randAngle,randRowHeight,initialCol))
 
