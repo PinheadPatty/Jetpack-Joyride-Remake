@@ -10,7 +10,7 @@ def onAppStart(app):
     app.distance=0
     app.totalCoins=0
     app.gameOver=False
-    app.inMenus=True
+    app.inMenus=False
     #app.menuScreen=image
     app.inShop=False
     #app.shopScreen=image
@@ -18,9 +18,9 @@ def onAppStart(app):
     #app.gadgetScreen=image
     app.inJetpackSkinShop=False
     #app.jetpackSkinScreen=image
-    app.playing=False
+    app.playing=True
     #app.playingScreen=image
-    app.stepsPerSecond=1
+    app.stepsPerSecond=3
     app.width=900
     app.height=(app.width//2)
     app.boardWidth=(app.width*4)//3
@@ -32,7 +32,7 @@ def onAppStart(app):
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
-    app.zapperList=[zapper(5,0,3)]
+    app.zapperList=[]
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -62,40 +62,46 @@ def onMousePress(app,mouseX,mouseY):
 def onStep(app):
     if app.playing:
         app.steps+=1
+        #move the screen
+        for zapper in app.zapperList:
+            zapper.col-=1
+            if zapper.col<0:
+                app.zapperList.remove(zapper)
+
         #app.playingScreen to the left and loop image
-        if app.steps%10:
-            pass
+        if app.steps%15==0:
             #addzapper to ZapperList
+            addZapper(app)
     else:
         app.steps=0
 
 def redrawAll(app):
     drawBoard(app)
     for zapper in app.zapperList:
-        drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow)
+        drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow,zapper.col)
 
 
 #Obstacles***
 #angles: 0=horizontal,1=45 degrees, 2=vertical, 3=135 degrees
-#pixels: in range of 1/2? of app.rows--longer zappers are less likely?
+#pixels: in range of (2*app.rows)//3? of app.rows--longer zappers are less likely?
 class zapper:
-    def __init__(self,pixels,angle,heightRow):
+    def __init__(self,pixels,angle,heightRow,col):
         self.pixels=pixels
         self.angle=angle
         self.heightRow=heightRow
+        self.col=col
 
-def drawZapper(app,pixels,angle,heightRow):
-    col=((app.cols*3)//4)-5
+def drawZapper(app,pixels,angle,heightRow,col):
     if angle==0:
         for i in range (pixels):
-            app.board[heightRow][col]='yellow'
+            drawCell(app,heightRow,col,'yellow')
             col+=1
     elif angle==1:
         #to check make sure the zapper is in the board
         while ((heightRow-pixels)<-1):
             heightRow+=1
         for i in range(pixels):
-            app.board[heightRow][col]='yellow'
+            drawCell(app,heightRow,col,'yellow')
             heightRow-=1
             col+=1
     elif angle==2:
@@ -103,29 +109,36 @@ def drawZapper(app,pixels,angle,heightRow):
         while ((heightRow+pixels)>app.rows):
             heightRow-=1
         for i in range(pixels):
-            app.board[heightRow][col]='yellow'
+            drawCell(app,heightRow,col,'yellow')
             heightRow+=1
     elif angle==3:
         #to check make sure the zapper is in the board
         while ((heightRow+pixels)>app.rows):
             heightRow-=1
         for i in range(pixels):
-            app.board[heightRow][col]='yellow'
+            drawCell(app,heightRow,col,'yellow')
             heightRow+=1
             col+=1
 
+def addZapper(app):
+    randPixels=random.randrange(3,(2*app.rows)//3+1)
+    randAngle=random.randrange(4)
+    randRowHeight=random.randrange(app.rows+1)
+    initialCol=((app.cols*3)//4)
+    app.zapperList.append(zapper(randPixels,randAngle,randRowHeight,initialCol))
 
 #FROM CMU CS ACADEMY
 def drawBoard(app):
     for row in range(app.rows):
         for col in range(app.cols):
+            color = app.board[row][col]
             drawCell(app, row, col, color)
 
-def drawCell(app, row, col,color):
+def drawCell(app, row, col, color):
     cellLeft, cellTop = getCellLeftTop(app, row, col)
     cellWidth, cellHeight = getCellSize(app)
     drawRect(cellLeft, cellTop, cellWidth, cellHeight,
-             fill=color, border='black',
+             fill=color, border='lightGrey',
              borderWidth=app.cellBorderWidth)
 
 def getCell(app, x, y):
