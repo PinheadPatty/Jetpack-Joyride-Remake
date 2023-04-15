@@ -17,6 +17,9 @@ def onAppStart(app):
     #app.jetpackSkinScreen=image
     app.playing=False
     #app.playingScreen=image
+    app.stepsPerSecond=1
+    app.steps=0
+    zapperList=[]
     resetApp(app)
 
 def onMousePress(app,mouseX,mouseY):
@@ -36,9 +39,9 @@ def onMousePress(app,mouseX,mouseY):
         #elif mouse is within jetpackSkinShopIcon
             #app.inShop=False
             #app.inJetpackSkinShop=True
-    elif app.gadgetScreen==True:
+    elif app.inGadgetShop==True:
         pass
-    elif app.jetpackScreen==True:
+    elif app.inJetpackSkinShop==True:
         pass
     else:
         pass
@@ -46,5 +49,9 @@ def onMousePress(app,mouseX,mouseY):
 
 def onStep(app):
     if app.playing:
-        #move
-        pass
+        app.steps+=1
+        #app.playingScreen to the left and loop image
+        #if app.StepsPerSecond%something
+            #addzapper to ZapperList
+    else:
+        app.steps=0
