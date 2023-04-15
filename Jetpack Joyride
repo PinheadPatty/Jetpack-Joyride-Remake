@@ -1,3 +1,29 @@
 from cmu_graphics import *
 import math,copy
 from PIL import Image
+import os, pathlib
+
+##scaffolding for game function
+def onAppStart(app):
+    app.BestDistance=0
+    app.coins=0
+    app.menuScreen=True
+    app.shopScreen=False
+    app.gadgetScreen=False
+    app.jetpackSkinScreen=False
+    app.activeScreen=False
+    ##when the game is being played
+    app.playing=False
+    resetApp(app)
+
+def onMousePress(app,mouseX,mouseY):
+    if app.menuScreen==True:
+        pass
+        #if mouse is within shop
+            #app.menuScreen=False
+            #app.shopScreen=True
+        #elif mouse is within playGame
+            #app.menuScreen=False
+
+def onStep(app):
+    pass
