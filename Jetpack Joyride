@@ -7,23 +7,44 @@ import os, pathlib
 def onAppStart(app):
     app.BestDistance=0
     app.coins=0
-    app.menuScreen=True
-    app.shopScreen=False
-    app.gadgetScreen=False
-    app.jetpackSkinScreen=False
-    app.activeScreen=False
-    ##when the game is being played
+    app.inMenus=True
+    #app.menuScreen=image
+    app.inShop=False
+    #app.shopScreen=image
+    app.inGadgetShop=False
+    #app.gadgetScreen=image
+    app.inJetpackSkinShop=False
+    #app.jetpackSkinScreen=image
     app.playing=False
+    #app.playingScreen=image
     resetApp(app)
 
 def onMousePress(app,mouseX,mouseY):
-    if app.menuScreen==True:
+    if app.inMenus==True:
         pass
-        #if mouse is within shop
-            #app.menuScreen=False
-            #app.shopScreen=True
-        #elif mouse is within playGame
-            #app.menuScreen=False
+        #if mouse is within shopIcon
+            #app.inMenus=False
+            #app.inShop=True
+        #elif mouse is within playGameIcon
+            #app.inMenus=False
+            #app.playing=True
+    elif app.inShop==True:
+        pass
+        #if mouse is withing gadgetShopIcon
+            #app.inShop=False
+            #app.inGadgetShop=True
+        #elif mouse is within jetpackSkinShopIcon
+            #app.inShop=False
+            #app.inJetpackSkinShop=True
+    elif app.gadgetScreen==True:
+        pass
+    elif app.jetpackScreen==True:
+        pass
+    else:
+        pass
+        #when app.playingScreen==True
 
 def onStep(app):
-    pass
+    if app.playing:
+        #move
+        pass
