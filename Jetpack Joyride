@@ -32,7 +32,7 @@ def onAppStart(app):
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
     #zapperList=[]
-print(app.cols)
+
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
         pass
@@ -69,29 +69,29 @@ def onStep(app):
 
 def redrawAll(app):
     drawBoard(app)
+    drawZapper(app,5,0,2)
 
 #Obstacles***
 #angles: 0=horizontal,1=45 degrees, 2=vertical, 3=135 degrees
 #pixels: in range of 1/2? of app.rows--longer zappers are less likely?
-def drawZapper(pixels,angle,heightRow):
-    col=(2/3)*app.cols
+def drawZapper(app,pixels,angle,heightRow):
+    col=(app.cols*2)//3
     if angle==0:
         for i in range (pixels):
             app.board[heightRow][col]='yellow'
             col+=1
-drawZapper(5,0,2)
 
 #FROM CMU CS ACADEMY
 def drawBoard(app):
     for row in range(app.rows):
         for col in range(app.cols):
-            drawCell(app, row, col)
+            drawCell(app, row, col, color)
 
-def drawCell(app, row, col):
+def drawCell(app, row, col,color):
     cellLeft, cellTop = getCellLeftTop(app, row, col)
     cellWidth, cellHeight = getCellSize(app)
     drawRect(cellLeft, cellTop, cellWidth, cellHeight,
-             fill=None, border='black',
+             fill=color, border='black',
              borderWidth=app.cellBorderWidth)
 
 def getCell(app, x, y):
