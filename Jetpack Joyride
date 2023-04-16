@@ -130,7 +130,8 @@ def onStep(app):
             if (zapper.col+zapper.pixels<0):
                 app.zapperList.remove(zapper)
         for missile in app.missileList:
-            missile.posX-=missile.speed
+            if missile.activated==True:
+                missile.posX-=missile.speed
         for missile in app.missileList:
             if (missile.posX+missile.radius<0):
                 app.missileList.remove(missile)
@@ -159,6 +160,7 @@ def redrawAll(app):
         if (app.steps-missile.time<40):
             drawMissileWarning(app,missile.radius)
         else:
+            missile.activated=True
             drawMissile(missile.radius,missile.posX,missile.height)
 
 
@@ -227,14 +229,14 @@ class missile:
         self.posX=posX
         self.radius=10*type+20
         self.speed=40/(type+1)
+        self.activated=False
 
 def drawMissileWarning(app,radius):
     drawCircle(app.width-radius,app.playerCy,radius,fill=None,border='red')
 
 def drawMissile(radius,posX,height):
     drawCircle(posX,height,radius,fill='red')
-
-    
+  
 def addMissile(app):
     randType=random.randrange(2)
     app.missileList.append(missile(randType,app.steps,app.playerCy,app.width+50))
