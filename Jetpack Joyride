@@ -89,15 +89,30 @@ def onKeyRelease(app,key):
 
 def onStep(app):
     if app.playing:
+
+        #check collisions:
+        for row in range(app.rows):
+            for col in range(app.cols):
+                cellLeft,cellTop=getCellLeftTop(app,row,col)
+                cellWidth,cellHeight=getCellSize(app)
+                print((app.board[row][col]))
+                if ((app.board[row][col]!=None) and 
+                    (distance(app.playerCx,app.playerCy,
+                    cellLeft+(0.5*cellWidth),cellTop+(0.5*cellHeight))<
+                    app.playerRadius+(0.5*cellWidth))):
+                    app.gameOver=True
+
+        #keeps the player inBounds
         if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
             app.dy=0
             app.playerCy=app.boardTop+app.boardHeight-(app.playerRadius)
             app.grounded=True
-        elif (app.playerCy-app.playerRadius<app.boardTop):
+        elif (app.playerCy-app.playerRadius+app.dy<app.boardTop):
             app.dy=0
             app.playerCy=app.boardTop+app.playerRadius
             app.ceilinged=True
-        #keeps the player inBounds
+
+        #moves the player
         if app.boosting:
             if (not app.ceilinged):
                 app.dy-=app.d2y
@@ -105,9 +120,7 @@ def onStep(app):
             if (not app.grounded):
                 app.dy+=app.d2y
         app.playerCy+=app.dy
-        #moves the character
-        app.distance+=1
-        app.steps+=1
+
         #move the screen
         for zapper in app.zapperList:
             zapper.col-=1
@@ -118,11 +131,16 @@ def onStep(app):
         if app.steps%50==0:
             #addzapper to ZapperList
             addZapper(app)
+        #add steps and distance
+        app.distance+=1
+        app.steps+=1
     else:
         app.distance=0
         app.steps=0
 
 def redrawAll(app):
+    if app.gameOver:
+        drawCircle(100,100,50,fill='red')
     drawBoard(app)
     drawPlayerHitbox(app)
     for zapper in app.zapperList:
@@ -144,7 +162,7 @@ class zapper:
 def drawZapper(app,pixels,angle,heightRow,col):
     if angle==0:
         for i in range (pixels):
-            drawCell(app,heightRow,col,'yellow')
+            app.board[heightRow][heightCol]='yellow'
             col+=1
     elif angle==1:
         #to check make sure the zapper is in the board
@@ -177,11 +195,16 @@ def addZapper(app):
     initialCol=((app.cols*3)//4)
     app.zapperList.append(zapper(randPixels,randAngle,randRowHeight,initialCol))
 ##missiles
+
+
 ##player
 def drawPlayerHitbox(app):
     drawCircle(app.playerCx,app.playerCy,app.playerRadius,border='black',fill=None)
 
 #FROM CMU CS ACADEMY
+def distance(x0, y0, x1, y1):
+    return ((x1 - x0)**2 + (y1 - y0)**2)**0.5
+
 def drawBoard(app):
     for row in range(app.rows):
         for col in range(app.cols):
