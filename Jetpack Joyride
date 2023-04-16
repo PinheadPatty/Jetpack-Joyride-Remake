@@ -20,7 +20,7 @@ def onAppStart(app):
     #app.jetpackSkinScreen=image
     app.playing=True
     #app.playingScreen=image
-    app.stepsPerSecond=3
+    app.stepsPerSecond=5
     app.width=900
     app.divisor=30
     app.height=(app.width//2)
@@ -34,9 +34,13 @@ def onAppStart(app):
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
     app.zapperList=[]
-    app.playerCx=app.boardWidth*(5//app.divisor)
+    app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(app.boardHeight//app.rows)
+    app.dy=0
+    app.d2y=5
+    #acceleration
+    app.boosting=False
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -63,8 +67,28 @@ def onMousePress(app,mouseX,mouseY):
         pass
         #when app.playingScreen==True
 
+def onKeyPress(app,key):
+    if app.playing:
+        if key=='space':
+            app.boosting=True
+            #jetpack is on
+
+def onKeyRelease(app,key):
+    if app.playing:
+        if key=='space':
+            app.boosting=False
+
 def onStep(app):
     if app.playing:
+        if (app.playerCy+app.playerRadius>:
+            app.playerCy
+        if app.boosting:
+            app.dy-=app.d2y
+        else:
+            app.dy+=app.d2y
+        app.playerCy+=app.dy
+        #moves the character
+        app.distance+=1
         app.steps+=1
         #move the screen
         for zapper in app.zapperList:
@@ -72,12 +96,12 @@ def onStep(app):
         for zapper in app.zapperList:
             if (zapper.col+zapper.pixels<0):
                 app.zapperList.remove(zapper)
-
         #app.playingScreen to the left and loop image
         if app.steps%15==0:
             #addzapper to ZapperList
             addZapper(app)
     else:
+        app.distance=0
         app.steps=0
 
 def redrawAll(app):
