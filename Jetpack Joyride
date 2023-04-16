@@ -139,7 +139,7 @@ def onStep(app):
         if app.steps%50==0:
             #addzapper to ZapperList
             addZapper(app)
-        if app.steps%150==0:
+        if app.steps%100==0:
             addMissile(app)
         #add steps and distance
         app.distance+=1
@@ -161,6 +161,12 @@ def redrawAll(app):
             drawMissileWarning(app,missile.radius)
         else:
             missile.activated=True
+            if missile.type==0:
+                while(app.steps-missile.time<80):
+                    missile.height=app.playerCy
+            elif missile.type==1:
+                while(app.steps-missile.time<50):
+                    missile.height=app.playerCy
             drawMissile(missile.radius,missile.posX,missile.height)
 
 
@@ -224,6 +230,7 @@ def addZapper(app):
 ##0=small&fast,1=large&slow
 class missile:
     def __init__(self,type,time,height,posX):
+        self.type=type
         self.time=time
         self.height=height
         self.posX=posX
