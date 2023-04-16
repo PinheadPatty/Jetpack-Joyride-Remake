@@ -132,7 +132,7 @@ def onStep(app):
         for missile in app.missileList:
             missile.posX-=missile.speed
         for missile in app.missileList:
-            if (missile.Cx+missile.radius<0):
+            if (missile.posX+missile.radius<0):
                 app.missileList.remove(missile)
         #app.playingScreen to the left and loop image
         if app.steps%50==0:
@@ -159,7 +159,7 @@ def redrawAll(app):
         if (app.steps-missile.time<40):
             drawMissileWarning(app,missile.radius)
         else:
-            drawMissile(app,missile.radius,missile.posX,missile.height)
+            drawMissile(missile.radius,missile.posX,missile.height)
 
 
 #Obstacles***
@@ -226,7 +226,7 @@ class missile:
         self.height=height
         self.posX=posX
         self.radius=10*type+20
-        self.speed=10/(type+1)
+        self.speed=40/(type+1)
 
 def drawMissileWarning(app,radius):
     drawCircle(app.width-radius,app.playerCy,radius,fill=None,border='red')
