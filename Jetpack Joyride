@@ -103,6 +103,8 @@ def onStep(app):
                     cellLeft+(0.5*cellWidth),cellTop+(0.5*cellHeight))<
                     app.playerRadius+(0.5*cellWidth))):
                     app.gameOver=True
+        for missile in missileList:
+            if distance(app.playerCx,app.playerCy)
 
         #keeps the player inBounds
         if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
@@ -159,15 +161,19 @@ def redrawAll(app):
         #length of delay
         if (app.steps-missile.time<40):
             drawMissileWarning(app,missile.radius)
+            missile.height=app.playerCy
         else:
             missile.activated=True
-            if missile.type==0:
-                while(app.steps-missile.time<80):
+            if missile.type==1:
+                if missile.posX>=(app.width//2):
                     missile.height=app.playerCy
-            elif missile.type==1:
-                while(app.steps-missile.time<50):
-                    missile.height=app.playerCy
+            #     while(app.steps-missile.time<500):
+            #         missile.height=app.playerCy
+            # elif missile.type==1:
+            #     while(app.steps-missile.time<50):
+            #         missile.height=app.playerCy
             drawMissile(missile.radius,missile.posX,missile.height)
+
 
 
 #Obstacles***
