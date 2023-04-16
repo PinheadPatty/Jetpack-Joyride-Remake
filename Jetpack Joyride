@@ -129,6 +129,11 @@ def onStep(app):
         for zapper in app.zapperList:
             if (zapper.col+zapper.pixels<0):
                 app.zapperList.remove(zapper)
+        for missile in app.missileList:
+            missile.col-=1
+        for missile in app.missileList:
+            if (missile.col+missile.type+2<0):
+                app.missileList.remove(zapper)
         #app.playingScreen to the left and loop image
         if app.steps%50==0:
             #addzapper to ZapperList
@@ -153,9 +158,8 @@ def redrawAll(app):
         print(app.steps,missile.time)
         if (app.steps-missile.time<40):
             drawMissileWarning(app,missile.type)
-            finalXPosition=
         else:
-            drawMissile(app,missile.type)
+            drawMissile(app,missile.type,missile.row,missile.col)
         
         #drawMissile(app,missile.type)
 
@@ -178,14 +182,16 @@ def drawZapper(app,pixels,angle,heightRow,col):
         for i in range (pixels):
             app.board[heightRow][col]='yellow'
             col+=1
-        app.board[heightRow][col]=None
+        if(app.board[heightRow][col]=='yellow'):
+            app.board[heightRow][col]=None
     elif angle==1:
         #to check make sure the zapper is in the board
         while ((heightRow-pixels)<-1):
             heightRow+=1
         for i in range(pixels):
             app.board[heightRow][col]='yellow'
-            app.board[heightRow][col+1]=None
+            if(app.board[heightRow][col+1]=='yellow'):
+                app.board[heightRow][col+1]=None
             heightRow-=1
             col+=1
     elif angle==2:
@@ -194,7 +200,8 @@ def drawZapper(app,pixels,angle,heightRow,col):
             heightRow-=1
         for i in range(pixels):
             app.board[heightRow][col]='yellow'
-            app.board[heightRow][col+1]=None
+            if(app.board[heightRow][col+1]=='yellow'):
+                app.board[heightRow][col+1]=None
             heightRow+=1
     elif angle==3:
         #to check make sure the zapper is in the board
@@ -202,7 +209,8 @@ def drawZapper(app,pixels,angle,heightRow,col):
             heightRow-=1
         for i in range(pixels):
             app.board[heightRow][col]='yellow'
-            app.board[heightRow][col+1]=None
+            if(app.board[heightRow][col+1]=='yellow'):
+                app.board[heightRow][col+1]=None
             heightRow+=1
             col+=1
 
@@ -213,22 +221,40 @@ def addZapper(app):
     initialCol=((app.cols*3)//4)
     app.zapperList.append(zapper(randPixels,randAngle,randRowHeight,initialCol))
 ##missiles
-##0=small&fast, 1=med&med, 2=large&slow
+##0=small&fast,1=large&slow
 class missile:
-    def __init__(self,type,time):
+    def __init__(self,type,time,row,col):
         self.type=type
         self.time=time
+        self.row=row
+        self.col=col
 
 def drawMissileWarning(app,type):
     radius=(10*type)+20
     drawCircle(app.width-radius,app.playerCy,radius,fill=None,border='red')
 
-def drawMissile(app,type):
-    drawRect()
+def drawMissile(app,type,heightRow,col):
+    if type==0:
+        for i in range(2):
+            app.board[heightRow][col]='red'
+            col+=1
+        if(app.board[heightRow][col]=='red'):
+            app.board[heightRow][col]=None
+    elif type==1:
+        for i in range(3):
+            app.board[heightRow][col]='red'
+            app.board[heightRow+1][col]='red'
+            col+=1
+        if(app.board[heightRow][col]=='red'):
+            app.board[heightRow][col]=None
+        if(app.board[heightRow+1][col]=='red'):
+            app.board[heightRow][col]=None
+
     
 def addMissile(app):
     randType=random.randrange(3)
-    app.missileList.append(missile(randType,app.steps))
+    (finalYRow,col)=getCell(app,app.width+1,app.playerCy)
+    app.missileList.append(missile(randType,app.steps,finalYRow,col))
 
 ##player
 def drawPlayerHitbox(app):
