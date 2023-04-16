@@ -162,14 +162,18 @@ class zapper:
 def drawZapper(app,pixels,angle,heightRow,col):
     if angle==0:
         for i in range (pixels):
-            app.board[heightRow][heightCol]='yellow'
+            #drawCell(app,heightRow,col,'yellow')
+            app.board[heightRow][col]='yellow'
             col+=1
+        app.board[heightRow][col]=None
     elif angle==1:
         #to check make sure the zapper is in the board
         while ((heightRow-pixels)<-1):
             heightRow+=1
         for i in range(pixels):
-            drawCell(app,heightRow,col,'yellow')
+            #drawCell(app,heightRow,col,'yellow')
+            app.board[heightRow][col]='yellow'
+            app.board[heightRow][col+1]=None
             heightRow-=1
             col+=1
     elif angle==2:
@@ -177,14 +181,18 @@ def drawZapper(app,pixels,angle,heightRow,col):
         while ((heightRow+pixels)>app.rows):
             heightRow-=1
         for i in range(pixels):
-            drawCell(app,heightRow,col,'yellow')
+            #drawCell(app,heightRow,col,'yellow')
+            app.board[heightRow][col]='yellow'
+            app.board[heightRow][col+1]=None
             heightRow+=1
     elif angle==3:
         #to check make sure the zapper is in the board
         while ((heightRow+pixels)>app.rows):
             heightRow-=1
         for i in range(pixels):
-            drawCell(app,heightRow,col,'yellow')
+            #drawCell(app,heightRow,col,'yellow')
+            app.board[heightRow][col]='yellow'
+            app.board[heightRow][col+1]=None
             heightRow+=1
             col+=1
 
@@ -239,6 +247,13 @@ def getCellSize(app):
     cellWidth = app.boardWidth / app.cols
     cellHeight = app.boardHeight / app.rows
     return (cellWidth, cellHeight)
+##same idea as from tetris
+def placePieceOnBoard(app):
+    for pieceRow in range(len(app.piece)):
+            for pieceCol in range(len(app.piece[0])):
+                if app.piece[pieceRow][pieceCol]==True:
+                    app.board[pieceRow+app.pieceTopRow][pieceCol+
+                    app.pieceLeftCol]=app.pieceColor
 
 def drawBoard(app):
     for row in range(app.rows):
