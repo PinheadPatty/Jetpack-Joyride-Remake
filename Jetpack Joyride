@@ -20,7 +20,7 @@ def onAppStart(app):
     #app.jetpackSkinScreen=image
     app.playing=True
     #app.playingScreen=image
-    app.stepsPerSecond=5
+    app.stepsPerSecond=10
     app.width=900
     app.divisor=30
     app.height=(app.width//2)
@@ -38,9 +38,15 @@ def onAppStart(app):
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(app.boardHeight//app.rows)
     app.dy=0
-    app.d2y=5
+    app.d2y=3
     #acceleration
     app.boosting=False
+    #if the character is on the ground
+    app.grounded=True
+    #if the character hits the ceiling
+    app.ceilinged=False
+    #if the character hits and obstacle
+    app.gameOver=False
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -70,22 +76,34 @@ def onMousePress(app,mouseX,mouseY):
 def onKeyPress(app,key):
     if app.playing:
         if key=='space':
+            app.grounded=False
             app.boosting=True
             #jetpack is on
 
 def onKeyRelease(app,key):
     if app.playing:
         if key=='space':
+            app.ceilinged=False
             app.boosting=False
+            #jetpack is off
 
 def onStep(app):
     if app.playing:
-        if (app.playerCy+app.playerRadius>:
-            app.playerCy
+        if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
+            app.dy=0
+            app.playerCy=app.boardTop+app.boardHeight-(app.playerRadius)
+            app.grounded=True
+        elif (app.playerCy-app.playerRadius<app.boardTop):
+            app.dy=0
+            app.playerCy=app.boardTop+app.playerRadius
+            app.ceilinged=True
+        #keeps the player inBounds
         if app.boosting:
-            app.dy-=app.d2y
+            if (not app.ceilinged):
+                app.dy-=app.d2y
         else:
-            app.dy+=app.d2y
+            if (not app.grounded):
+                app.dy+=app.d2y
         app.playerCy+=app.dy
         #moves the character
         app.distance+=1
@@ -97,7 +115,7 @@ def onStep(app):
             if (zapper.col+zapper.pixels<0):
                 app.zapperList.remove(zapper)
         #app.playingScreen to the left and loop image
-        if app.steps%15==0:
+        if app.steps%50==0:
             #addzapper to ZapperList
             addZapper(app)
     else:
@@ -153,7 +171,7 @@ def drawZapper(app,pixels,angle,heightRow,col):
             col+=1
 
 def addZapper(app):
-    randPixels=random.randrange(3,(2*app.rows)//3)
+    randPixels=random.randrange(3,((app.rows)//2)+1)
     randAngle=random.randrange(4)
     randRowHeight=random.randrange(app.rows)
     initialCol=((app.cols*3)//4)
