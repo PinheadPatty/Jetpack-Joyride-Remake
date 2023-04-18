@@ -20,7 +20,7 @@ def onAppStart(app):
     #app.jetpackSkinScreen=image
     app.playing=True
     #app.playingScreen=image
-    app.stepsPerSecond=15
+    app.stepsPerSecond=10
     app.width=900
     app.divisor=30
     app.height=(app.width//2)
@@ -39,7 +39,7 @@ def onAppStart(app):
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
     app.dy=0
-    app.d2y=2
+    app.d2y=2.5
     #acceleration
     app.boosting=False
     #if the character is on the ground
@@ -239,13 +239,13 @@ def addZapper(app):
 ##missiles
 ##0=small&fast,1=large&slow
 class missile:
-    def __init__(self,app,type,time,height,posX):
+    def __init__(self,type,time,height,posX):
         self.type=type
         self.time=time
         self.height=height
         self.posX=posX
         self.radius=10*type+20
-        self.speed=(app.stepsPerSecond*2)/(type+1)
+        self.speed=40/(type+1)
         self.activated=False
 
 def drawMissileWarning(app,radius):
@@ -256,7 +256,7 @@ def drawMissile(radius,posX,height):
   
 def addMissile(app):
     randType=random.randrange(2)
-    app.missileList.append(missile(app,randType,app.steps,app.playerCy,app.width+50))
+    app.missileList.append(missile(randType,app.steps,app.playerCy,app.width+50))
 
 ##player
 def drawPlayerHitbox(app):
