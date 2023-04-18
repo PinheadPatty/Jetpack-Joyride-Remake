@@ -90,6 +90,7 @@ def onKeyRelease(app,key):
 
 def onStep(app):
     if app.playing:
+        print(app.dy)
         #if app.gameOver=True:
             
             #while(app.steps)
@@ -120,10 +121,10 @@ def onStep(app):
 
         #moves the player
         if app.boosting:
-            if (not app.ceilinged):
+            if ((not app.ceilinged)and(app.dy>-30)):
                 app.dy-=app.d2y
         else:
-            if (not app.grounded):
+            if ((not app.grounded)and(app.dy<30)):
                 app.dy+=app.d2y
         app.playerCy+=app.dy
 
