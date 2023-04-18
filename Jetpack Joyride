@@ -20,7 +20,7 @@ def onAppStart(app):
     #app.jetpackSkinScreen=image
     app.playing=True
     #app.playingScreen=image
-    app.stepsPerSecond=15
+    app.stepsPerSecond=13
     app.width=900
     app.divisor=30
     app.height=(app.width//2)
