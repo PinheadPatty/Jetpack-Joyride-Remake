@@ -318,3 +318,13 @@ if __name__=='__main__':
 #test2_redrawAll(app)
 #setActiveScreen('test')
 #runAppWithScreens(initialScreen='test')
+#game_onStep(app):
+
+#buttons
+#def buttonFunction
+#class Button
+#def __init__(self,buttonFunciton)
+#def checkForPress(self,app,mouseX,mouseY):
+    #if in the parameters
+        #call self.buttonFunction(app)
+#app.myButton=(self,buttonFunction)
