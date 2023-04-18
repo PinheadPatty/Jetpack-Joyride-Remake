@@ -312,3 +312,9 @@ def main():
 
 if __name__=='__main__':
     main()
+
+#for different screens
+#test_redrawAll(app)
+#test2_redrawAll(app)
+#setActiveScreen('test')
+#runAppWithScreens(initialScreen='test')
