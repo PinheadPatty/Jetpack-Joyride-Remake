@@ -154,6 +154,7 @@ def onStep(app):
         app.steps=0
 
 def redrawAll(app):
+    drawLaser(app,app.boardTop,False)
     if app.playing:
         if app.gameOver:
             drawCircle(100,100,50,fill='red')
@@ -246,7 +247,7 @@ class missile:
         self.height=height
         self.posX=posX
         self.radius=10*type+20
-        self.speed=(app.stepsPerSecond*2)/(type+1)
+        self.speed=(app.stepsPerSecond*3)/(type+1)
         self.activated=False
 
 def drawMissileWarning(app,radius):
@@ -258,6 +259,24 @@ def drawMissile(radius,posX,height):
 def addMissile(app):
     randType=random.randrange(2)
     app.missileList.append(missile(app,randType,app.steps,app.playerCy,app.width+50))
+
+##lasers
+class laser:
+    def __init__(self,height,moving):
+        self.height=height
+        self.moving=moving
+        self.activated=False
+
+def drawLaser(app,height,activated):
+    cellHeight=app.boardHeight//app.rows
+    if activated:
+        laserOpacity=30
+    else:
+        laserOpacity=10
+    drawRect(0,height,app.boardWidth,cellHeight,fill='red',opacity=laserOpacity)
+  
+def addLaser(app):
+    pass
 
 ##player
 def drawPlayerHitbox(app):
