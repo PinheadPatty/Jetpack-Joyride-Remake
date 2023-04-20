@@ -135,11 +135,17 @@ def onStep(app):
             if (zapper.col+zapper.pixels<0):
                 app.zapperList.remove(zapper)
         for missile in app.missileList:
-            if missile.activated==True:
-                missile.posX-=missile.speed
-        for missile in app.missileList:
             if (missile.posX+missile.radius<0):
                 app.missileList.remove(missile)
+        for missile in app.missileList:
+            if (app.steps-missile.time<40):
+                    missile.height=app.playerCy
+            else:
+                missile.activated=True
+                if missile.type==1:
+                    if missile.posX>=(app.width//2):
+                        missile.height=app.playerCy
+                missile.posX-=missile.speed
         #app.playingScreen to the left and loop image
         if app.steps%50==0:
             #addzapper to ZapperList
@@ -165,19 +171,9 @@ def redrawAll(app):
             drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow,zapper.col)
         for missile in app.missileList:
             #length of delay
-            if (app.steps-missile.time<40):
+            if missile.activated==False:
                 drawMissileWarning(app,missile.radius)
-                missile.height=app.playerCy
             else:
-                missile.activated=True
-                if missile.type==1:
-                    if missile.posX>=(app.width//2):
-                        missile.height=app.playerCy
-                #     while(app.steps-missile.time<500):
-                #         missile.height=app.playerCy
-                # elif missile.type==1:
-                #     while(app.steps-missile.time<50):
-                #         missile.height=app.playerCy
                 drawMissile(missile.radius,missile.posX,missile.height)
 
 
