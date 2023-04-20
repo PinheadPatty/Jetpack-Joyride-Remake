@@ -35,6 +35,7 @@ def onAppStart(app):
     app.steps=0
     app.zapperList=[]
     app.missileList=[]
+    app.laserList=[]
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
@@ -108,6 +109,8 @@ def onStep(app):
             if (distance(app.playerCx,app.playerCy,missile.posX,missile.height)<
                 app.playerRadius+missile.radius):
                 app.gameOver=True
+        for laser in app.laserList:
+            if (app.playerCy+)
 
         #keeps the player inBounds
         if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
@@ -135,9 +138,6 @@ def onStep(app):
             if (zapper.col+zapper.pixels<0):
                 app.zapperList.remove(zapper)
         for missile in app.missileList:
-            if (missile.posX+missile.radius<0):
-                app.missileList.remove(missile)
-        for missile in app.missileList:
             if (app.steps-missile.time<40):
                     missile.height=app.playerCy
             else:
@@ -146,12 +146,25 @@ def onStep(app):
                     if missile.posX>=(app.width//2):
                         missile.height=app.playerCy
                 missile.posX-=missile.speed
+        for missile in app.missileList:
+            if (missile.posX+missile.radius<0):
+                app.missileList.remove(missile)
+        for laser in app.laserList:
+            if laser.moving!=0:
+                laser
+            if not (app.steps-laser.time<40):
+                laser.activated=True
+        for laser in app.laserList:
+            if (app.steps-laser.time>70):
+                app.laserList.remove(laser)
         #app.playingScreen to the left and loop image
         if app.steps%50==0:
             #addzapper to ZapperList
             addZapper(app)
         if app.steps%100==0:
             addMissile(app)
+        if app.steps%200==0:
+            addLaser(app)
         #add steps and distance
         app.distance+=1
         app.steps+=1
@@ -160,7 +173,6 @@ def onStep(app):
         app.steps=0
 
 def redrawAll(app):
-    drawLaser(app,app.boardTop,False)
     if app.playing:
         if app.gameOver:
             drawCircle(100,100,50,fill='red')
@@ -171,11 +183,12 @@ def redrawAll(app):
             drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow,zapper.col)
         for missile in app.missileList:
             #length of delay
-            if missile.activated==False:
+            if not missile.activated:
                 drawMissileWarning(app,missile.radius)
             else:
                 drawMissile(missile.radius,missile.posX,missile.height)
-
+        for laser in app.laserList:
+            drawLaser(app,laser.height,laser.activated)
 
 
 #Obstacles***
@@ -257,10 +270,12 @@ def addMissile(app):
     app.missileList.append(missile(app,randType,app.steps,app.playerCy,app.width+50))
 
 ##lasers
+##moving:0=not moving,1=up,2=down
 class laser:
-    def __init__(self,height,moving):
+    def __init__(self,height,time,moving):
         self.height=height
         self.moving=moving
+        self.time=time
         self.activated=False
 
 def drawLaser(app,height,activated):
@@ -272,7 +287,11 @@ def drawLaser(app,height,activated):
     drawRect(0,height,app.boardWidth,cellHeight,fill='red',opacity=laserOpacity)
   
 def addLaser(app):
-    pass
+    cellHeight=app.boardHeight//app.rows
+    randomHeight=(random.randrange(app.rows)*cellHeight)+app.boardTop
+    #change this to make it less frequent
+    randomDirection=random.randrange(3)
+    app.laserList.append(laser(randomHeight,app.steps,randomDirection))
 
 ##player
 def drawPlayerHitbox(app):
