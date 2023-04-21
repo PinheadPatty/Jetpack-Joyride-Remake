@@ -34,7 +34,7 @@ def onAppStart(app):
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
     app.playerGadgets=[]
-    app.gadgetButtonList=[gadgetButton]
+    app.gadgetButtonList=[gadgetButton((app.width*3)/5,70,magnetismGadget)]
     app.dy=0
     app.d2y=2
     #acceleration
@@ -45,9 +45,10 @@ def onAppStart(app):
     app.ceilinged=False
     #if the character hits and obstacle
     app.gameOver=False
-    app.playGameButtonX,app.playGameButtonY,app.playGameButtonWidth,
-    app.playGameButtonHeight=(app.width*3)/5,(app.height*3)/4,
-    app.width/3,app.height/6
+    app.playGameButtonX=(app.width*3)/5
+    app.playGameButtonY=(app.height*3)/4
+    app.playGameButtonWidth=app.width/3
+    app.playGameButtonHeight=app.height/6
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -204,17 +205,21 @@ def redrawAll(app):
         drawLabel("JETPACKS",(app.width*3)/4,(app.height/2)-40,size=30)
         drawLabel("PLAY AGAIN",(app.width*9)/10,(app.height*5)/6,
                   size=40,bold=True,align='right')
-        app.playGameButton.drawButton()
+        drawRect(app.playGameButtonX,app.playGameButtonY,
+        app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
+        for gadgetButton in app.gadgetButtonList:
+            gadgetButton.drawButton()
+
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus:
-        if pressInPlayGame(app):
+        if pressInPlayGame(app,mouseX,mouseY):
             app.gameOver=False
             app.inMenus=False
             app.playing=True
         else:
-            for button in app.gadgetButtonList:
-                pass
+            for gadgetButton in app.gadgetButtonList:
+                gadgetButton.checkForPress(app,mouseX,mouseY)
             
 
 
@@ -332,23 +337,27 @@ def drawPlayerHitbox(app):
     #if in the parameters
         #call self.buttonFunction(app)
 #app.myButton=(self,buttonFunction)
-#FROM CMU CS ACADEMY
+
 class gadgetButton:
     def __init__(self,x,y,buttonFunction):
         self.x=x
         self.y=y
-        self.width=10
-        self.height=10
+        self.width=20
+        self.height=20
         self.unlocked=False
         self.activated=False
     def drawButton(self):
-        drawRect(self.x,self.y,self.width,self.height,fill=None,border='black')
+        if self.unlocked:
+            buttonFill=None
+        else:
+            buttonFill='lightGrey'
+        drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,border='black')
     def checkForPress(self,app,mouseX,mouseY):
         if ((self.x<=mouseX<=self.x+self.width)and
             (self.y<=mouseY<=self.y+self.height)):
             self.buttonFunction(app)
 
-def pressInPlayGame(app):
+def pressInPlayGame(app,mouseX,mouseY):
     if((app.playGameButtonX<=mouseX<=app.playGameButtonX+
         app.playGameButtonWidth)and(app.playGameButtonY<=mouseY<=
         app.playGameButtonY+app.playGameButtonHeight)):
@@ -360,6 +369,7 @@ def pressInPlayGame(app):
 def magnetismGadget(app):
     pass
 
+#FROM CMU CS ACADEMY
 def distance(x0, y0, x1, y1):
     return ((x1 - x0)**2 + (y1 - y0)**2)**0.5
 
