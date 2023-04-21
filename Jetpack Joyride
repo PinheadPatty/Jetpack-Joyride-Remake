@@ -12,12 +12,6 @@ def onAppStart(app):
     app.gameOver=False
     app.inMenus=False
     #app.menuScreen=image
-    app.inShop=False
-    #app.shopScreen=image
-    app.inGadgetShop=False
-    #app.gadgetScreen=image
-    app.inJetpackSkinShop=False
-    #app.jetpackSkinScreen=image
     app.playing=True
     #app.playingScreen=image
     app.stepsPerSecond=13
@@ -39,6 +33,8 @@ def onAppStart(app):
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
+    app.playerGadgets=[]
+    app.gadgetButtonList=[gadgetButton]
     app.dy=0
     app.d2y=2
     #acceleration
@@ -49,6 +45,9 @@ def onAppStart(app):
     app.ceilinged=False
     #if the character hits and obstacle
     app.gameOver=False
+    app.playGameButtonX,app.playGameButtonY,app.playGameButtonWidth,
+    app.playGameButtonHeight=(app.width*3)/5,(app.height*3)/4,
+    app.width/3,app.height/6
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus==True:
@@ -186,7 +185,7 @@ def onStep(app):
 def redrawAll(app):
     if app.playing:
         if app.gameOver:
-            drawCircle(100,100,50,fill='red')
+            drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
         drawBoard(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
         drawPlayerHitbox(app)
@@ -201,7 +200,23 @@ def redrawAll(app):
         for laser in app.laserList:
             drawLaser(app,laser.height,laser.activated)
     elif app.inMenus:
-        pass
+        drawLabel("GADGETS",(app.width*3)/4,40,size=30)
+        drawLabel("JETPACKS",(app.width*3)/4,(app.height/2)-40,size=30)
+        drawLabel("PLAY AGAIN",(app.width*9)/10,(app.height*5)/6,
+                  size=40,bold=True,align='right')
+        app.playGameButton.drawButton()
+
+def onMousePress(app,mouseX,mouseY):
+    if app.inMenus:
+        if pressInPlayGame(app):
+            app.gameOver=False
+            app.inMenus=False
+            app.playing=True
+        else:
+            for button in app.gadgetButtonList:
+                pass
+            
+
 
 #Obstacles***
 #angles: 0=horizontal,1=45 degrees, 2=vertical, 3=135 degrees
@@ -309,7 +324,42 @@ def addLaser(app):
 def drawPlayerHitbox(app):
     drawCircle(app.playerCx,app.playerCy,app.playerRadius,border='black',fill=None)
 
+#buttons
+#def buttonFunction
+#class Button
+#def __init__(self,buttonFunciton)
+#def checkForPress(self,app,mouseX,mouseY):
+    #if in the parameters
+        #call self.buttonFunction(app)
+#app.myButton=(self,buttonFunction)
 #FROM CMU CS ACADEMY
+class gadgetButton:
+    def __init__(self,x,y,buttonFunction):
+        self.x=x
+        self.y=y
+        self.width=10
+        self.height=10
+        self.unlocked=False
+        self.activated=False
+    def drawButton(self):
+        drawRect(self.x,self.y,self.width,self.height,fill=None,border='black')
+    def checkForPress(self,app,mouseX,mouseY):
+        if ((self.x<=mouseX<=self.x+self.width)and
+            (self.y<=mouseY<=self.y+self.height)):
+            self.buttonFunction(app)
+
+def pressInPlayGame(app):
+    if((app.playGameButtonX<=mouseX<=app.playGameButtonX+
+        app.playGameButtonWidth)and(app.playGameButtonY<=mouseY<=
+        app.playGameButtonY+app.playGameButtonHeight)):
+        return True
+    else:
+        return False
+    
+
+def magnetismGadget(app):
+    pass
+
 def distance(x0, y0, x1, y1):
     return ((x1 - x0)**2 + (y1 - y0)**2)**0.5
 
@@ -367,11 +417,3 @@ if __name__=='__main__':
 #runAppWithScreens(initialScreen='test')
 #game_onStep(app):
 
-#buttons
-#def buttonFunction
-#class Button
-#def __init__(self,buttonFunciton)
-#def checkForPress(self,app,mouseX,mouseY):
-    #if in the parameters
-        #call self.buttonFunction(app)
-#app.myButton=(self,buttonFunction)
