@@ -38,6 +38,8 @@ def onAppStart(app):
     app.boosting=False
     app.grounded=True
     app.ceilinged=False
+    app.coinRadius=50
+    app.allCoinsList=[]
     app.gameOver=False
     app.playGameButtonX=(app.width*3)/5
     app.playGameButtonY=(app.height*3)/4
@@ -110,6 +112,11 @@ def checkCollisions(app):
             (abs(app.playerCy-(laser.height+cellHeight))<=app.playerRadius))
             and(laser.activated)):
             app.gameOver=True 
+    for coinList in app.allCoinsList:
+        for (x,y) in coinList:
+            if (distance(app.playerCx,app.playerCy,x,y)<=
+                app.playerRadius+app.coinRadius):
+                coin.fill=None
 
 def keepPlayerInBounds(app):
     if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
@@ -171,6 +178,9 @@ def addObjects(app):
             addMissile(app)
         if app.steps%200==0:
             addLaser(app)
+        if app.steps%100==0:
+            pass
+            #addCoins(app)
 
 def redrawAll(app):
     if app.playing:
@@ -195,14 +205,17 @@ def drawLabels(app):
 
 def drawObjects(app):
     for zapper in app.zapperList:
-        drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow,zapper.col)
+        zapper.drawZapper(app)
     for missile in app.missileList:
         if not missile.activated:
-            drawMissileWarning(app,missile.radius)
+            missile.drawMissileWarning(app)
         else:
-            drawMissile(missile.radius,missile.posX,missile.height)
+            missile.drawMissile()
     for laser in app.laserList:
-        drawLaser(app,laser.height,laser.activated)            
+        laser.drawLaser(app)
+    for coinList in app.allCoinsList:
+        for (x,y) in coinList:
+            drawCoin(x,y)          
 
 
 #Obstacles***
@@ -217,43 +230,44 @@ class zapper:
         self.col=col
     def __repr__(self):
         return f'col:{self.col},{self.pixels} pixels'
-
-def drawZapper(app,pixels,angle,heightRow,col):
-    if angle==0:
-        for i in range (pixels):
-            app.board[heightRow][col]='yellow'
-            col+=1
-        if(app.board[heightRow][col]=='yellow'):
-            app.board[heightRow][col]=None
-    elif angle==1:
-        #to check make sure the zapper is in the board
-        while ((heightRow-pixels)<-1):
-            heightRow+=1
-        for i in range(pixels):
-            app.board[heightRow][col]='yellow'
-            if(app.board[heightRow][col+1]=='yellow'):
-                app.board[heightRow][col+1]=None
-            heightRow-=1
-            col+=1
-    elif angle==2:
-        #to make sure the zapper is in the board
-        while ((heightRow+pixels)>app.rows):
-            heightRow-=1
-        for i in range(pixels):
-            app.board[heightRow][col]='yellow'
-            if(app.board[heightRow][col+1]=='yellow'):
-                app.board[heightRow][col+1]=None
-            heightRow+=1
-    elif angle==3:
-        #to make sure the zapper is in the board
-        while ((heightRow+pixels)>app.rows):
-            heightRow-=1
-        for i in range(pixels):
-            app.board[heightRow][col]='yellow'
-            if(app.board[heightRow][col+1]=='yellow'):
-                app.board[heightRow][col+1]=None
-            heightRow+=1
-            col+=1
+    def drawZapper(self,app):
+        heightRow=self.heightRow
+        col=self.col
+        if self.angle==0:
+            for i in range (self.pixels):
+                app.board[heightRow][col]='yellow'
+                col+=1
+            if(app.board[heightRow][col]=='yellow'):
+                app.board[heightRow][col]=None
+        elif self.angle==1:
+            #to check make sure the zapper is in the board
+            while ((heightRow-self.pixels)<-1):
+                heightRow+=1
+            for i in range(self.pixels):
+                app.board[heightRow][col]='yellow'
+                if(app.board[heightRow][col+1]=='yellow'):
+                    app.board[heightRow][col+1]=None
+                heightRow-=1
+                col+=1
+        elif self.angle==2:
+            #to make sure the zapper is in the board
+            while ((heightRow+self.pixels)>app.rows):
+                heightRow-=1
+            for i in range(self.pixels):
+                app.board[heightRow][col]='yellow'
+                if(app.board[heightRow][col+1]=='yellow'):
+                    app.board[heightRow][col+1]=None
+                heightRow+=1
+        elif self.angle==3:
+            #to make sure the zapper is in the board
+            while ((heightRow+self.pixels)>app.rows):
+                heightRow-=1
+            for i in range(self.pixels):
+                app.board[heightRow][col]='yellow'
+                if(app.board[heightRow][col+1]=='yellow'):
+                    app.board[heightRow][col+1]=None
+                heightRow+=1
+                col+=1
 
 def addZapper(app):
     randPixels=random.randrange(3,((app.rows)//2)+1)
@@ -272,12 +286,10 @@ class missile:
         self.radius=10*type+20
         self.speed=(app.stepsPerSecond*3)/(type+1)
         self.activated=False
-
-def drawMissileWarning(app,radius):
-    drawCircle(app.width-radius,app.playerCy,radius,fill=None,border='red')
-
-def drawMissile(radius,posX,height):
-    drawCircle(posX,height,radius,fill='red')
+    def drawMissileWarning(self,app):
+        drawCircle(app.width-self.radius,app.playerCy,self.radius,fill=None,border='red')
+    def drawMissile(self):
+        drawCircle(self.posX,self.height,self.radius,fill='red')
   
 def addMissile(app):
     randType=random.randrange(2)
@@ -291,14 +303,13 @@ class laser:
         self.moving=moving
         self.time=time
         self.activated=False
-
-def drawLaser(app,height,activated):
-    cellHeight=app.boardHeight//app.rows
-    if activated:
-        laserOpacity=30
-    else:
-        laserOpacity=10
-    drawRect(0,height,app.boardWidth,cellHeight,fill='red',opacity=laserOpacity)
+    def drawLaser(self,app):
+        cellHeight=app.boardHeight//app.rows
+        if self.activated:
+            laserOpacity=30
+        else:
+            laserOpacity=10
+        drawRect(0,self.height,app.boardWidth,cellHeight,fill='red',opacity=laserOpacity)
   
 def addLaser(app):
     cellHeight=app.boardHeight//app.rows
@@ -306,6 +317,29 @@ def addLaser(app):
     #change this to make it less frequent for moving lasers
     randomDirection=random.randrange(2)-1
     app.laserList.append(laser(randomHeight,app.steps,randomDirection))
+
+##coins
+class coin:
+    def __init__(self,x,y,coinFill):
+        self.x=x
+        self.y=y
+        self.coinFill='yellow'
+    
+def drawCoin(x,y,coinFill):
+    drawCircle(x,y,app.coinRadius,fill=coinFill)
+
+def addCoinList(app):
+    coinHeight=random.randrange(app.boardTop,app.boarTop+app.boardHeight)
+    firstCoinX=app.width+app.coinRadius
+    firstCoinY=coinHeight
+    coinRows=random.randRange(4)
+    coinCols=random.randRange(11)
+    coinList=[]
+    for row in range(coinRows):
+        for col in range(coinCols):
+            coinList.append((firstCoinX+(row*app.coinRadius),
+            coinHeight+(col*app.coinRadius)))
+    app.allCoinLists.append(coinList)
 
 ##player
 def drawPlayerHitbox(app):
