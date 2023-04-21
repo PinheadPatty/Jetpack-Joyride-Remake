@@ -240,17 +240,15 @@ class zapper:
             if(app.board[heightRow][col]=='yellow'):
                 app.board[heightRow][col]=None
         elif self.angle==1:
-            #to check make sure the zapper is in the board
             while ((heightRow-self.pixels)<-1):
                 heightRow+=1
             for i in range(self.pixels):
                 app.board[heightRow][col]='yellow'
                 if(app.board[heightRow][col+1]=='yellow'):
-                    app.board[heightRow][col+1]=None
+                  s  app.board[heightRow][col+1]=None
                 heightRow-=1
                 col+=1
         elif self.angle==2:
-            #to make sure the zapper is in the board
             while ((heightRow+self.pixels)>app.rows):
                 heightRow-=1
             for i in range(self.pixels):
@@ -259,7 +257,6 @@ class zapper:
                     app.board[heightRow][col+1]=None
                 heightRow+=1
         elif self.angle==3:
-            #to make sure the zapper is in the board
             while ((heightRow+self.pixels)>app.rows):
                 heightRow-=1
             for i in range(self.pixels):
@@ -294,7 +291,6 @@ class missile:
 def addMissile(app):
     randType=random.randrange(2)
     app.missileList.append(missile(app,randType,app.steps,app.playerCy,app.width+50))
-
 ##lasers
 ##moving:0=not moving,-1=up,1=down
 class laser:
