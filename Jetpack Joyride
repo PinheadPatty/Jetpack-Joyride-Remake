@@ -245,7 +245,7 @@ class zapper:
             for i in range(self.pixels):
                 app.board[heightRow][col]='yellow'
                 if(app.board[heightRow][col+1]=='yellow'):
-                  s  app.board[heightRow][col+1]=None
+                    app.board[heightRow][col+1]=None
                 heightRow-=1
                 col+=1
         elif self.angle==2:
