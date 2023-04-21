@@ -1,7 +1,7 @@
 from cmu_graphics import *
 import math,copy
 import random
-#from PIL import Image
+from PIL import Image
 #import os, pathlib
 
 ##scaffolding for game function
@@ -75,27 +75,22 @@ def onStep(app):
                     app.stepsPerSecond/=1.3
             else:
                 app.playing=False
-        #check collisions:
         checkCollisions(app)
         keepPlayerInBounds(app)
         movePlayer(app)
         moveObjects(app)
         #app.playingScreen to the left and loop image
-        if app.steps%50==0:
-            #addzapper to ZapperList
-            addZapper(app)
-        if app.steps%100==0:
-            addMissile(app)
-        if app.steps%200==0:
-            addLaser(app)
-        #add steps and distance
+        addObjects(app)
         app.distance+=1
         app.steps+=1
+        if app.steps%200==0:
+            app.stepsPerSecond+=0.5
     else:
         app.stepsPerSecond=13
         app.distance=0
         app.steps=0
         app.inMenus=True
+
 def checkCollisions(app):
     cellWidth,cellHeight=getCellSize(app)
     for row in range(app.rows):
@@ -168,6 +163,15 @@ def moveObjects(app):
         if (app.steps-laser.time>90):
             app.laserList.remove(laser)
 
+def addObjects(app):
+    if app.steps>1:
+        if app.steps%50==0:
+            addZapper(app)
+        if app.steps%100==0:
+            addMissile(app)
+        if app.steps%200==0:
+            addLaser(app)
+
 def redrawAll(app):
     if app.playing:
         if app.gameOver:
@@ -175,27 +179,30 @@ def redrawAll(app):
         drawBoard(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
         drawPlayerHitbox(app)
-        for zapper in app.zapperList:
-            drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow,zapper.col)
-        for missile in app.missileList:
-            #length of delay
-            if not missile.activated:
-                drawMissileWarning(app,missile.radius)
-            else:
-                drawMissile(missile.radius,missile.posX,missile.height)
-        for laser in app.laserList:
-            drawLaser(app,laser.height,laser.activated)
+        drawObjects(app)
     elif app.inMenus:
-        drawLabel("GADGETS",(app.width*3)/4,40,size=30)
-        drawLabel("JETPACKS",(app.width*3)/4,(app.height/2)-40,size=30)
-        drawLabel("PLAY AGAIN",(app.width*9)/10,(app.height*5)/6,
-                  size=40,bold=True,align='right')
+        drawLabels(app)
         drawRect(app.playGameButtonX,app.playGameButtonY,
         app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
         for gadgetButton in app.gadgetButtonList:
             gadgetButton.drawButton()
 
-            
+def drawLabels(app):
+    drawLabel("GADGETS",(app.width*3)/4,40,size=30)
+    drawLabel("JETPACKS",(app.width*3)/4,(app.height/2)-40,size=30)
+    drawLabel("PLAY AGAIN",(app.width*9)/10,(app.height*5)/6,
+    size=40,bold=True,align='right') 
+
+def drawObjects(app):
+    for zapper in app.zapperList:
+        drawZapper(app,zapper.pixels,zapper.angle,zapper.heightRow,zapper.col)
+    for missile in app.missileList:
+        if not missile.activated:
+            drawMissileWarning(app,missile.radius)
+        else:
+            drawMissile(missile.radius,missile.posX,missile.height)
+    for laser in app.laserList:
+        drawLaser(app,laser.height,laser.activated)            
 
 
 #Obstacles***
