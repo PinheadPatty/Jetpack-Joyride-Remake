@@ -76,7 +76,7 @@ def onMousePress(app,mouseX,mouseY):
         #when app.playingScreen==True
 
 def onKeyPress(app,key):
-    if app.playing:
+    if app.playing and not app.gameOver:
         if key=='space':
             app.grounded=False
             app.boosting=True
@@ -91,15 +91,16 @@ def onKeyRelease(app,key):
 
 def onStep(app):
     if app.playing:
-        print(app.dy)
-        #if app.gameOver=True:
-            
-            #while(app.steps)
+        if app.gameOver:
+            if app.stepsPerSecond>1:
+                app.stepsPerSecond-=0.25
+            else:
+                app.playing=False
         #check collisions:
+        cellWidth,cellHeight=getCellSize(app)
         for row in range(app.rows):
             for col in range(app.cols):
                 cellLeft,cellTop=getCellLeftTop(app,row,col)
-                cellWidth,cellHeight=getCellSize(app)
                 if ((app.board[row][col]!=None) and 
                     (distance(app.playerCx,app.playerCy,
                     cellLeft+(0.5*cellWidth),cellTop+(0.5*cellHeight))<
@@ -110,8 +111,10 @@ def onStep(app):
                 app.playerRadius+missile.radius):
                 app.gameOver=True
         for laser in app.laserList:
-            if (app.playerCy+)
-
+            if (((abs(laser.height-app.playerCy)<=app.playerRadius)or
+                (abs(app.playerCy-(laser.height+cellHeight))<=app.playerRadius))
+                and(laser.activated)):
+                app.gameOver=True 
         #keeps the player inBounds
         if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
             app.dy=0
@@ -150,12 +153,17 @@ def onStep(app):
             if (missile.posX+missile.radius<0):
                 app.missileList.remove(missile)
         for laser in app.laserList:
-            if laser.moving!=0:
-                laser
-            if not (app.steps-laser.time<40):
+            if ((laser.height<=app.boardTop) or 
+                (laser.height+cellHeight>=app.boardTop+app.boardHeight)):
+                laser.moving=-laser.moving
+            laser.height+=3*laser.moving
+        for laser in app.laserList:        
+            if ((app.steps-laser.time)>40):
                 laser.activated=True
+            else:
+                laser.activated=False
         for laser in app.laserList:
-            if (app.steps-laser.time>70):
+            if (app.steps-laser.time>90):
                 app.laserList.remove(laser)
         #app.playingScreen to the left and loop image
         if app.steps%50==0:
@@ -171,6 +179,7 @@ def onStep(app):
     else:
         app.distance=0
         app.steps=0
+        app.inMenus=True
 
 def redrawAll(app):
     if app.playing:
@@ -270,7 +279,7 @@ def addMissile(app):
     app.missileList.append(missile(app,randType,app.steps,app.playerCy,app.width+50))
 
 ##lasers
-##moving:0=not moving,1=up,2=down
+##moving:0=not moving,-1=up,1=down
 class laser:
     def __init__(self,height,time,moving):
         self.height=height
@@ -289,8 +298,8 @@ def drawLaser(app,height,activated):
 def addLaser(app):
     cellHeight=app.boardHeight//app.rows
     randomHeight=(random.randrange(app.rows)*cellHeight)+app.boardTop
-    #change this to make it less frequent
-    randomDirection=random.randrange(3)
+    #change this to make it less frequent for moving lasers
+    randomDirection=random.randrange(2)-1
     app.laserList.append(laser(randomHeight,app.steps,randomDirection))
 
 ##player
