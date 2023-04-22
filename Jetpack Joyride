@@ -2,12 +2,14 @@ from cmu_graphics import *
 import math,copy
 import random
 from PIL import Image
-#import os, pathlib
+import os, pathlib
 
 def onAppStart(app):
     app.BestDistance=0
     app.distance=0
+    app.bestDistance=0
     app.totalCoins=0
+    app.coinAdder=1
     app.thisGameCoins=0
     app.gameOver=False
     app.inMenus=False
@@ -31,14 +33,16 @@ def onAppStart(app):
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
-    app.playerGadgets=[]
-    app.gadgetButtonList=[gadgetButton((app.width/2),70,magnetismGadget)]
+    app.playerGadget=None
+    app.gadgetButtonList=[gadgetButton((app.width/2),70,50,magnetismGadget),
+    gadgetButton((app.width/2)+(app.width/8),70,100,doubleCoinsGadget)]
     app.dy=0
     app.d2y=2
     app.boosting=False
     app.grounded=True
     app.ceilinged=False
     app.coinRadius=10
+    app.coinCollectRadius=app.playerRadius
     app.allCoinsList=[]
     app.gameOver=False
     app.playGameButtonX=(app.width*3)/5
@@ -51,8 +55,23 @@ def onAppStart(app):
     app.coinsOn=True
     ##IMAGES
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
+    ##https://express.adobe.com/sp/design/post/urn:aaid:sc:VA6C2:896e421d-5470-4fd2-b5d6-cb0ad68cb17a?workflow=quicktask&qId=remove-background&actionLocation=seo&autoDownload=true
+    ##(adobeExpress to remove background)
     ##BARRY SPRITESHEET
-    app.characterSpriteSheet=Image.open("B5BE4421-A864-45FB-9963-808F7BBB49FD_adobe_express.png")
+    app.characterSpriteSheet='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/B5BE4421-A864-45FB-9963-808F7BBB49FD_adobe_express.png'
+    app.characterImage1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage1.png'
+    app.characterImage2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage2.png'
+    app.characterImage3='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage3.png'
+    app.characterImage4='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage4.png'
+    app.characterBoostImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterBoostImage.png'
+    app.characterImages=[app.characterImage1,app.characterImage2,app.characterImage3,app.characterImage4]
+    app.characterImageIndex=0
+    app.characterImage=app.characterImage1
+    ##missiles
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/4/42/MissileJammer.png/revision/latest/thumbnail/width/360/height/360?cb=20120428044536
+    app.fastRedMissile=None
+
+    app.slowBlueMissile=None
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -97,15 +116,28 @@ def onStep(app):
             app.stepsPerSecond+=0.2
     else:
         app.stepsPerSecond=10
+        if app.distance>=app.bestDistance:
+            app.bestDistance=app.distance
         app.distance=0
         app.steps=0
         app.totalCoins+=app.thisGameCoins
         app.thisGameCoins=0
+        app.zapperList=[]
+        app.missileList=[]
+        app.laserList=[]
+        app.board=[([None]*app.cols) for row in range(app.rows)]
+        app.zappersOn=True
+        app.missilesOn=False
+        app.lasersOn=False
+        app.coinsOn=True
         app.inMenus=True
 
 def cycleCharacterGraphic(app):
-    pass
-
+    if app.grounded:
+        app.characterImageIndex=(app.characterImageIndex+1)%4
+        app.characterImage=app.characterImages[app.characterImageIndex]
+    elif not app.gameOver:
+        app.characterImage=app.characterBoostImage
 
 def checkCollisions(app):
     cellWidth,cellHeight=getCellSize(app)
@@ -131,7 +163,7 @@ def checkCollisions(app):
             if (distance(app.playerCx,app.playerCy,coin.x,coin.y)<=
                 app.playerRadius+app.coinRadius):
                 coin.coinFill=None
-                app.thisGameCoins+=1
+                app.thisGameCoins+=app.coinAdder
 
 
 def keepPlayerInBounds(app):
@@ -176,7 +208,7 @@ def moveObjects(app):
         if ((laser.height<=app.boardTop) or 
             (laser.height+cellHeight>=app.boardTop+app.boardHeight)):
             laser.moving=-laser.moving
-        laser.height+=3*laser.moving
+        laser.height+=4*laser.moving
     for laser in app.laserList:        
         if ((app.steps-laser.time)>40):
             laser.activated=True
@@ -198,10 +230,22 @@ def moveObjects(app):
 
 def addObjects(app):
     if app.steps>1:
+        if app.steps%499==0:
+            app.lasersOn=(not app.lasersOn) 
+        else:
+            if app.steps%100==0:
+                if random.randrange(6)==5:
+                    app.zappersOn=False
+                else:
+                    app.zappersOn=True
+        if app.coinsOn:
+            if app.steps%50==0:
+                addCoinList(app)
         if app.lasersOn:
             app.zappersOn=False
             app.missilesOn=False
-            if app.steps%100==0:
+            app.coinsOn=False
+            if app.steps%(1000//app.stepsPerSecond)==0:
                 addLaser(app)
         else:
             if app.zappersOn:
@@ -212,17 +256,6 @@ def addObjects(app):
             else:
                 if app.steps%20==0:
                     addMissile(app)
-        if app.steps%500==0:
-            app.lasersOn=(not app.lasersOn) 
-        else:
-            if app.steps%100==0:
-                if random.randrange(6)==5:
-                    app.zappersOn=False
-                else:
-                    app.zappersOn=True
-        if app.coinsOn:
-            if app.steps%100==0:
-                addCoinList(app)
 
 
 def redrawAll(app):
@@ -236,7 +269,7 @@ def redrawAll(app):
         drawObjects(app)
         drawCharacterGraphic(app)
     elif app.inMenus:
-        drawLabels(app)
+        drawMenuLabels(app)
         drawRect(app.playGameButtonX,app.playGameButtonY,
         app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
         for gadgetButton in app.gadgetButtonList:
@@ -244,12 +277,16 @@ def redrawAll(app):
 
 def drawCharacterGraphic(app):
     drawImage(app.characterSpriteSheet,0,0)
+    drawImage(app.characterImage,app.playerCx,app.playerCy,
+              width=app.playerRadius*3,height=app.playerRadius*3,align='center')
 
-def drawLabels(app):
-    drawLabel("GADGETS",(app.width*3)/4,40,size=30)
-    drawLabel("JETPACKS",(app.width*3)/4,(app.height/2)-40,size=30)
-    drawLabel("PLAY AGAIN",(app.width*9)/10,(app.height*5)/6,
-    size=40,bold=True,align='right') 
+def drawMenuLabels(app):
+    drawLabel('GADGETS',(app.width*3)/4,40,size=30)
+    drawLabel('JETPACKS',(app.width*3)/4,(app.height/2)-40,size=30)
+    drawLabel('PLAY AGAIN',(app.width*9)/10,(app.height*5)/6,
+    size=40,bold=True,align='right')
+    drawLabel(f'COINS: {app.totalCoins}',50,40,size=20,align='left')
+    drawLabel(f'BEST DISTANCE: {app.bestDistance}M',50,70,size=20,align='left')
 
 def drawObjects(app):
     for zapper in app.zapperList:
@@ -359,7 +396,9 @@ def addLaser(app):
     cellHeight=app.boardHeight//app.rows
     randomHeight=(random.randrange(app.rows)*cellHeight)+app.boardTop
     #change this to make it less frequent for moving lasers
-    randomDirection=random.randrange(2)-1
+    randomDirection=random.randrange(2)
+    if randomDirection==0:
+        randomDirection=-1
     app.laserList.append(laser(randomHeight,app.steps,randomDirection))
 
 ##coins
@@ -398,9 +437,10 @@ def drawPlayerHitbox(app):
 #app.myButton=(self,buttonFunction)
 
 class gadgetButton:
-    def __init__(self,x,y,buttonFunction):
+    def __init__(self,x,y,price,buttonFunction):
         self.x=x
         self.y=y
+        self.price=price
         self.width=80
         self.height=80
         self.buttonFunction=buttonFunction
@@ -409,13 +449,31 @@ class gadgetButton:
     def drawButton(self):
         if self.unlocked:
             buttonFill=None
+            buttonBorder='green'
         else:
             buttonFill='lightGrey'
-        drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,border='black')
+            buttonBorder='red'
+        drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,border=buttonBorder)
     def checkForPress(self,app,mouseX,mouseY):
         if ((self.x<=mouseX<=self.x+self.width)and
             (self.y<=mouseY<=self.y+self.height)):
-            self.buttonFunction(app)
+            if (self.unlocked):
+                self.activated=not self.activated
+            elif (app.totalCoins>=self.price):
+                self.unlocked=True
+        self.buttonFunction(app,self.activated)
+
+def magnetismGadget(app,activated):
+    if activated:
+        app.coinCollectRadius=app.playerRadius+10
+    else:
+        app.coinCollectRadius=app.playerRadius
+
+def doubleCoinsGadget(app,activated):
+    if activated:
+        app.coinAdder=2
+    else:
+        app.coinAdder=1
 
 def pressInPlayGame(app,mouseX,mouseY):
     if((app.playGameButtonX<=mouseX<=app.playGameButtonX+
@@ -424,10 +482,7 @@ def pressInPlayGame(app,mouseX,mouseY):
         return True
     else:
         return False
-    
 
-def magnetismGadget(app):
-    pass
 
 #FROM CMU CS ACADEMY
 def distance(x0, y0, x1, y1):
