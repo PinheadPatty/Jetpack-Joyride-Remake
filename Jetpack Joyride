@@ -33,10 +33,10 @@ def onAppStart(app):
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
-    app.magnetism=gadgetButton((app.width/2),70,50,magnetismGadget)
-    app.doubleCoins=gadgetButton((app.width/2)+(app.width/8),70,100,doubleCoinsGadget)
+    app.magnetism=gadgetButton(app,(app.width/2),70,0,magnetismGadgetToggle)
+    app.doubleCoins=gadgetButton(app,(app.width/2)+(app.width/8),70,0,doubleCoinsGadgetToggle)
     app.gadgetButtonList=[app.magnetism,app.doubleCoins]
-    app.playerGadget=app.magnetism
+    app.selectedGadget=None
     app.dy=0
     app.d2y=2
     app.boosting=False
@@ -84,7 +84,9 @@ def onAppStart(app):
     app.laserWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserWarning.png'
     ##https://cdn.mobygames.com/screenshots/16820647-jetpack-joyride-ipad-beware-of-flashing-lasers.png
     app.laserActive='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserActive.png'
-
+    ##zappers
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/2/23/NewZapper.png/revision/latest?cb=20151016122706
+    ##https://i0.wp.com/www.androidpure.com/wp-content/uploads/2015/07/Jetpack-Joyride-New-Zappers-e1436600208357.png
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -289,7 +291,7 @@ def redrawAll(app):
         drawRect(app.playGameButtonX,app.playGameButtonY,
         app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
         for gadgetButton in app.gadgetButtonList:
-            gadgetButton.drawButton()
+            gadgetButton.drawButton(app)
 
 def drawCharacterGraphic(app):
     #drawImage(app.characterSpriteSheet,0,0)
@@ -487,7 +489,7 @@ def drawPlayerHitbox(app):
 #app.myButton=(self,buttonFunction)
 
 class gadgetButton:
-    def __init__(self,x,y,price,buttonFunction):
+    def __init__(self,app,x,y,price,buttonFunction):
         self.x=x
         self.y=y
         self.price=price
@@ -496,30 +498,42 @@ class gadgetButton:
         self.buttonFunction=buttonFunction
         self.unlocked=False
         self.activated=False
-    def drawButton(self):
+    def __eq__(self,other):
+        if isinstance(other,gadgetButton)and self.buttonFunction==other.buttonFunction:
+            return True
+        else:
+            return False
+    def drawButton(self,app):
         if self.unlocked:
             buttonFill=None
-            buttonBorder='green'
         else:
             buttonFill='lightGrey'
+        if app.selectedGadget==self:
+            buttonBorder='green'
+        else:
             buttonBorder='red'
         drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,border=buttonBorder)
     def checkForPress(self,app,mouseX,mouseY):
         if ((self.x<=mouseX<=self.x+self.width)and
             (self.y<=mouseY<=self.y+self.height)):
-            if (self.unlocked):
-                self.activated=not self.activated
-            elif (app.totalCoins>=self.price):
+            if (app.totalCoins>=self.price and self.unlocked!=True):
                 self.unlocked=True
+                app.totalCoins-=self.price
+            if (self.unlocked and app.selectedGadget!=self):
+                app.selectedGadget=self
+                self.activated=True
+            else:
+                app.selectedGadget=None   
+                self.activated=False
         self.buttonFunction(app,self.activated)
 
-def magnetismGadget(app,activated):
+def magnetismGadgetToggle(app,activated):
     if activated:
-        app.coinCollectRadius=app.playerRadius+30
+        app.coinCollectRadius=app.playerRadius+50
     else:
         app.coinCollectRadius=app.playerRadius
 
-def doubleCoinsGadget(app,activated):
+def doubleCoinsGadgetToggle(app,activated):
     if activated:
         app.coinAdder=2
     else:
