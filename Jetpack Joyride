@@ -73,7 +73,16 @@ def onAppStart(app):
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/9/94/EzyDodgeMissiles.png/revision/latest/thumbnail/width/360/height/360?cb=20120428172654
     app.slowBlueMissile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/slowBlueMissile.png'
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/5/51/About_to_come.png/revision/latest?cb=20120503044614
-    app.missileWarningImage=None
+    app.redMissileWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/redMissileWarning.png'
+    app.blueMissileWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/blueMissileWarning.png'
+    ##lasers
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/d/d7/Fires_laser.png/revision/latest?cb=20120511034357
+    app.laserEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEnd.png'
+    ##https://i.imgur.com/zAtRU1W.jpg
+    app.laserWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserWarning.png'
+    ##https://cdn.mobygames.com/screenshots/16820647-jetpack-joyride-ipad-beware-of-flashing-lasers.png
+    app.laserActive=''
+
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -288,13 +297,15 @@ def drawMissileGraphic(app):
     for missile in app.missileList:
         if missile.type==0:
             if not missile.activated:
-                pass
+                drawImage(app.redMissileWarning,app.width-missile.radius-5,
+                app.playerCy-2,width=missile.radius*2.5,height=missile.radius*2.5,align='center')
             else:
                 drawImage(app.fastRedMissile,missile.posX,missile.height,
                 width=missile.radius*4,height=missile.radius*4.25,align='center')
         else:
             if not missile.activated:
-                pass
+                drawImage(app.blueMissileWarning,app.width-missile.radius-5,
+                app.playerCy,width=missile.radius*2.5,height=missile.radius*2.5,align='center')
             else:
                 drawImage(app.slowBlueMissile,missile.posX,missile.height+2,
                 width=missile.radius*4,height=missile.radius*4.5,align='center')
@@ -392,7 +403,7 @@ class missile:
         self.speed=(app.stepsPerSecond*3)/(type+1)
         self.activated=False
     def drawMissileWarning(self,app):
-        drawCircle(app.width-self.radius,app.playerCy,self.radius,fill=None,border='red')
+        drawCircle(app.width-self.radius-5,app.playerCy,self.radius,fill=None,border='red')
     def drawMissile(self):
         drawCircle(self.posX,self.height,self.radius,fill='red')
   
