@@ -4,15 +4,15 @@ import random
 from PIL import Image
 #import os, pathlib
 
-##scaffolding for game function
 def onAppStart(app):
     app.BestDistance=0
     app.distance=0
     app.totalCoins=0
+    app.thisGameCoins=0
     app.gameOver=False
     app.inMenus=False
     app.playing=True
-    app.stepsPerSecond=13
+    app.stepsPerSecond=10
     app.width=900
     app.divisor=30
     app.height=(app.width//2)
@@ -38,14 +38,21 @@ def onAppStart(app):
     app.boosting=False
     app.grounded=True
     app.ceilinged=False
-    app.coinRadius=50
+    app.coinRadius=10
     app.allCoinsList=[]
     app.gameOver=False
     app.playGameButtonX=(app.width*3)/5
     app.playGameButtonY=(app.height*3)/4
     app.playGameButtonWidth=app.width/3
     app.playGameButtonHeight=app.height/6
-
+    app.zappersOn=True
+    app.missilesOn=False
+    app.lasersOn=False
+    app.coinsOn=True
+    ##IMAGES
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
+    ##BARRY SPRITESHEET
+    app.characterSpriteSheet=Image.open("B5BE4421-A864-45FB-9963-808F7BBB49FD_adobe_express.png")
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -77,6 +84,7 @@ def onStep(app):
                     app.stepsPerSecond/=1.3
             else:
                 app.playing=False
+        cycleCharacterGraphic(app)
         checkCollisions(app)
         keepPlayerInBounds(app)
         movePlayer(app)
@@ -85,13 +93,19 @@ def onStep(app):
         addObjects(app)
         app.distance+=1
         app.steps+=1
-        if app.steps%200==0:
-            app.stepsPerSecond+=0.5
+        if app.steps%50==0:
+            app.stepsPerSecond+=0.2
     else:
-        app.stepsPerSecond=13
+        app.stepsPerSecond=10
         app.distance=0
         app.steps=0
+        app.totalCoins+=app.thisGameCoins
+        app.thisGameCoins=0
         app.inMenus=True
+
+def cycleCharacterGraphic(app):
+    pass
+
 
 def checkCollisions(app):
     cellWidth,cellHeight=getCellSize(app)
@@ -113,10 +127,12 @@ def checkCollisions(app):
             and(laser.activated)):
             app.gameOver=True 
     for coinList in app.allCoinsList:
-        for (x,y) in coinList:
-            if (distance(app.playerCx,app.playerCy,x,y)<=
+        for coin in coinList:
+            if (distance(app.playerCx,app.playerCy,coin.x,coin.y)<=
                 app.playerRadius+app.coinRadius):
-                coin.fill=None
+                coin.coinFill=None
+                app.thisGameCoins+=1
+
 
 def keepPlayerInBounds(app):
     if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
@@ -169,18 +185,45 @@ def moveObjects(app):
     for laser in app.laserList:
         if (app.steps-laser.time>90):
             app.laserList.remove(laser)
+    for coinList in app.allCoinsList:
+        for coin in coinList:
+            coin.x-=cellWidth
+    for coinList in app.allCoinsList:
+        if coinList==[]:
+            app.allCoinsList.remove(coinList)
+        else:
+            for coin in coinList:
+                if coin.x<0:
+                    coinList.remove(coin)
 
 def addObjects(app):
     if app.steps>1:
-        if app.steps%50==0:
-            addZapper(app)
-        if app.steps%100==0:
-            addMissile(app)
-        if app.steps%200==0:
-            addLaser(app)
-        if app.steps%100==0:
-            pass
-            #addCoins(app)
+        if app.lasersOn:
+            app.zappersOn=False
+            app.missilesOn=False
+            if app.steps%100==0:
+                addLaser(app)
+        else:
+            if app.zappersOn:
+                if app.steps%50==0:
+                    addZapper(app)
+                if app.steps%100==0:
+                    addMissile(app)
+            else:
+                if app.steps%20==0:
+                    addMissile(app)
+        if app.steps%500==0:
+            app.lasersOn=(not app.lasersOn) 
+        else:
+            if app.steps%100==0:
+                if random.randrange(6)==5:
+                    app.zappersOn=False
+                else:
+                    app.zappersOn=True
+        if app.coinsOn:
+            if app.steps%100==0:
+                addCoinList(app)
+
 
 def redrawAll(app):
     if app.playing:
@@ -188,14 +231,19 @@ def redrawAll(app):
             drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
         drawBoard(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
+        drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
         drawPlayerHitbox(app)
         drawObjects(app)
+        drawCharacterGraphic(app)
     elif app.inMenus:
         drawLabels(app)
         drawRect(app.playGameButtonX,app.playGameButtonY,
         app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
         for gadgetButton in app.gadgetButtonList:
             gadgetButton.drawButton()
+
+def drawCharacterGraphic(app):
+    drawImage(app.characterSpriteSheet,0,0)
 
 def drawLabels(app):
     drawLabel("GADGETS",(app.width*3)/4,40,size=30)
@@ -214,8 +262,8 @@ def drawObjects(app):
     for laser in app.laserList:
         laser.drawLaser(app)
     for coinList in app.allCoinsList:
-        for (x,y) in coinList:
-            drawCoin(x,y)          
+        for coin in coinList:
+            coin.drawCoin(app)          
 
 
 #Obstacles***
@@ -316,26 +364,25 @@ def addLaser(app):
 
 ##coins
 class coin:
-    def __init__(self,x,y,coinFill):
+    def __init__(self,x,y):
         self.x=x
         self.y=y
-        self.coinFill='yellow'
-    
-def drawCoin(x,y,coinFill):
-    drawCircle(x,y,app.coinRadius,fill=coinFill)
+        self.coinFill='gold'
+    def drawCoin(self,app):
+        drawCircle(self.x,self.y,app.coinRadius,fill=self.coinFill)
 
 def addCoinList(app):
-    coinHeight=random.randrange(app.boardTop,app.boarTop+app.boardHeight)
+    coinHeight=random.randrange(app.boardTop,app.boardTop+app.boardHeight)
     firstCoinX=app.width+app.coinRadius
     firstCoinY=coinHeight
-    coinRows=random.randRange(4)
-    coinCols=random.randRange(11)
+    coinRows=random.randrange(11)
+    coinCols=random.randrange(4)
     coinList=[]
     for row in range(coinRows):
         for col in range(coinCols):
-            coinList.append((firstCoinX+(row*app.coinRadius),
-            coinHeight+(col*app.coinRadius)))
-    app.allCoinLists.append(coinList)
+            coinList.append(coin(firstCoinX+(row*app.coinRadius*2)+5,
+            coinHeight+(col*app.coinRadius*2)+5))
+    app.allCoinsList.append(coinList)
 
 ##player
 def drawPlayerHitbox(app):
