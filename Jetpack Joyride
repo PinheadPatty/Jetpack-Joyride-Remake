@@ -69,9 +69,11 @@ def onAppStart(app):
     app.characterImage=app.characterImage1
     ##missiles
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/4/42/MissileJammer.png/revision/latest/thumbnail/width/360/height/360?cb=20120428044536
-    app.fastRedMissile=None
-
-    app.slowBlueMissile=None
+    app.fastRedMissile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/fastRedMissile.png'
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/9/94/EzyDodgeMissiles.png/revision/latest/thumbnail/width/360/height/360?cb=20120428172654
+    app.slowBlueMissile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/slowBlueMissile.png'
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/5/51/About_to_come.png/revision/latest?cb=20120503044614
+    app.missileWarningImage=None
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -125,6 +127,7 @@ def onStep(app):
         app.zapperList=[]
         app.missileList=[]
         app.laserList=[]
+        app.coinList=[]
         app.board=[([None]*app.cols) for row in range(app.rows)]
         app.zappersOn=True
         app.missilesOn=False
@@ -267,6 +270,7 @@ def redrawAll(app):
         drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
         drawPlayerHitbox(app)
         drawObjects(app)
+        drawMissileGraphic(app)
         drawCharacterGraphic(app)
     elif app.inMenus:
         drawMenuLabels(app)
@@ -279,6 +283,25 @@ def drawCharacterGraphic(app):
     drawImage(app.characterSpriteSheet,0,0)
     drawImage(app.characterImage,app.playerCx,app.playerCy,
               width=app.playerRadius*3,height=app.playerRadius*3,align='center')
+
+def drawMissileGraphic(app):
+    for missile in app.missileList:
+        if missile.type==0:
+            if not missile.activated:
+                pass
+            else:
+                drawImage(app.fastRedMissile,missile.posX,missile.height,
+                width=missile.radius*4,height=missile.radius*4.25,align='center')
+        else:
+            if not missile.activated:
+                pass
+            else:
+                drawImage(app.slowBlueMissile,missile.posX,missile.height+2,
+                width=missile.radius*4,height=missile.radius*4.5,align='center')
+
+def drawLaserGraphic(app):
+    for laser in app.laserList:
+        pass
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
