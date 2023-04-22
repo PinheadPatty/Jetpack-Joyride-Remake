@@ -77,11 +77,12 @@ def onAppStart(app):
     app.blueMissileWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/blueMissileWarning.png'
     ##lasers
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/d/d7/Fires_laser.png/revision/latest?cb=20120511034357
-    app.laserEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEnd.png'
+    app.laserEndLeft='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEndLeft.png'
+    app.laserEndRight='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEndRight.png'
     ##https://i.imgur.com/zAtRU1W.jpg
     app.laserWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserWarning.png'
     ##https://cdn.mobygames.com/screenshots/16820647-jetpack-joyride-ipad-beware-of-flashing-lasers.png
-    app.laserActive=''
+    app.laserActive='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserActive.png'
 
 
 def onKeyPress(app,key):
@@ -280,6 +281,7 @@ def redrawAll(app):
         drawPlayerHitbox(app)
         drawObjects(app)
         drawMissileGraphic(app)
+        drawLaserGraphic(app)
         drawCharacterGraphic(app)
     elif app.inMenus:
         drawMenuLabels(app)
@@ -289,7 +291,7 @@ def redrawAll(app):
             gadgetButton.drawButton()
 
 def drawCharacterGraphic(app):
-    drawImage(app.characterSpriteSheet,0,0)
+    #drawImage(app.characterSpriteSheet,0,0)
     drawImage(app.characterImage,app.playerCx,app.playerCy,
               width=app.playerRadius*3,height=app.playerRadius*3,align='center')
 
@@ -311,8 +313,10 @@ def drawMissileGraphic(app):
                 width=missile.radius*4,height=missile.radius*4.5,align='center')
 
 def drawLaserGraphic(app):
+    cellWidth, cellHeight = getCellSize(app)
     for laser in app.laserList:
-        pass
+        drawImage(app.laserEndLeft,0,laser.height,cellWidth,cellHeight)
+        drawImage(app.laserEndRight,0,laser.height,cellWidth,cellHeight)
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
@@ -445,16 +449,19 @@ class coin:
         drawCircle(self.x,self.y,app.coinRadius,fill=self.coinFill)
 
 def addCoinList(app):
-    coinHeight=random.randrange(app.boardTop,app.boardTop+app.boardHeight)
+    coinHeight=random.randrange(app.boardTop+app.coinRadius,app.boardTop+app.boardHeight)
+    coinCols=random.randrange(11)
+    coinRows=random.randrange(4)
+    while (coinHeight+(app.coinRadius*2*coinRows)>
+           app.boardTop+app.boardHeight):
+        coinHeight-=1
     firstCoinX=app.width+app.coinRadius
     firstCoinY=coinHeight
-    coinRows=random.randrange(11)
-    coinCols=random.randrange(4)
     coinList=[]
     for row in range(coinRows):
         for col in range(coinCols):
-            coinList.append(coin(firstCoinX+(row*app.coinRadius*2)+5,
-            coinHeight+(col*app.coinRadius*2)+5))
+            coinList.append(coin(firstCoinX+(col*app.coinRadius*2)+5,
+            coinHeight+(row*app.coinRadius*2)+5))
     app.allCoinsList.append(coinList)
 
 ##player
