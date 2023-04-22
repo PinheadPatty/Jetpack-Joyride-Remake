@@ -33,9 +33,10 @@ def onAppStart(app):
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
-    app.playerGadget=None
-    app.gadgetButtonList=[gadgetButton((app.width/2),70,50,magnetismGadget),
-    gadgetButton((app.width/2)+(app.width/8),70,100,doubleCoinsGadget)]
+    app.magnetism=gadgetButton((app.width/2),70,50,magnetismGadget)
+    app.doubleCoins=gadgetButton((app.width/2)+(app.width/8),70,100,doubleCoinsGadget)
+    app.gadgetButtonList=[app.magnetism,app.doubleCoins]
+    app.playerGadget=app.magnetism
     app.dy=0
     app.d2y=2
     app.boosting=False
@@ -92,7 +93,7 @@ def onKeyPress(app,key):
             app.boosting=True
 
 def onKeyRelease(app,key):
-    if app.playing:
+    if app.playing and not app.gameOver:
         if key=='space':
             app.ceilinged=False
             app.boosting=False
@@ -110,6 +111,7 @@ def onMousePress(app,mouseX,mouseY):
 def onStep(app):
     if app.playing:
         if app.gameOver:
+            app.boosting=False
             if (app.stepsPerSecond>1):
                 if app.grounded:
                     app.stepsPerSecond/=1.3
@@ -174,7 +176,7 @@ def checkCollisions(app):
     for coinList in app.allCoinsList:
         for coin in coinList:
             if (distance(app.playerCx,app.playerCy,coin.x,coin.y)<=
-                app.playerRadius+app.coinRadius):
+                app.coinCollectRadius+app.coinRadius):
                 coin.coinFill=None
                 app.thisGameCoins+=app.coinAdder
 
@@ -228,7 +230,7 @@ def moveObjects(app):
         else:
             laser.activated=False
     for laser in app.laserList:
-        if (app.steps-laser.time>90):
+        if (app.steps-laser.time>80):
             app.laserList.remove(laser)
     for coinList in app.allCoinsList:
         for coin in coinList:
@@ -243,33 +245,32 @@ def moveObjects(app):
 
 def addObjects(app):
     if app.steps>1:
-        if app.steps%499==0:
+        if app.steps%500==0:
             app.lasersOn=(not app.lasersOn) 
+            addLaser(app)
         else:
             if app.steps%100==0:
                 if random.randrange(6)==5:
                     app.zappersOn=False
                 else:
                     app.zappersOn=True
-        if app.coinsOn:
-            if app.steps%50==0:
-                addCoinList(app)
         if app.lasersOn:
             app.zappersOn=False
             app.missilesOn=False
-            app.coinsOn=False
             if app.steps%(1000//app.stepsPerSecond)==0:
                 addLaser(app)
         else:
             if app.zappersOn:
-                if app.steps%50==0:
+                if (app.steps%50==0 and (app.steps%500!=0)):
                     addZapper(app)
-                if app.steps%100==0:
+                if app.steps%100==0 and (app.steps%500!=0):
                     addMissile(app)
             else:
-                if app.steps%20==0:
+                if (app.steps%20==0 and (app.steps%500!=0)):
                     addMissile(app)
-
+        if app.coinsOn:
+            if app.steps%50==0:
+                addCoinList(app)
 
 def redrawAll(app):
     if app.playing:
@@ -315,8 +316,16 @@ def drawMissileGraphic(app):
 def drawLaserGraphic(app):
     cellWidth, cellHeight = getCellSize(app)
     for laser in app.laserList:
-        drawImage(app.laserEndLeft,0,laser.height,cellWidth,cellHeight)
-        drawImage(app.laserEndRight,0,laser.height,cellWidth,cellHeight)
+        drawImage(app.laserEndLeft,0,laser.height,width=cellWidth,
+                  height=cellHeight)
+        drawImage(app.laserEndRight,app.width,laser.height,width=cellWidth,
+                  height=cellHeight,align='right-top')
+        if not laser.activated:
+            drawImage(app.laserWarning,cellWidth,laser.height+(cellHeight/2)-2,
+                    width=app.width-(2*cellWidth),height=4)
+        else:
+            drawImage(app.laserActive,cellWidth,laser.height,
+                    width=app.width-(2*cellWidth),height=cellHeight)
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
@@ -506,7 +515,7 @@ class gadgetButton:
 
 def magnetismGadget(app,activated):
     if activated:
-        app.coinCollectRadius=app.playerRadius+10
+        app.coinCollectRadius=app.playerRadius+30
     else:
         app.coinCollectRadius=app.playerRadius
 
