@@ -54,6 +54,9 @@ def onAppStart(app):
     app.missilesOn=False
     app.lasersOn=False
     app.coinsOn=True
+    app.zapped=False
+    app.burnt=False
+
     ##IMAGES
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
     ##https://express.adobe.com/sp/design/post/urn:aaid:sc:VA6C2:896e421d-5470-4fd2-b5d6-cb0ad68cb17a?workflow=quicktask&qId=remove-background&actionLocation=seo&autoDownload=true
@@ -64,10 +67,15 @@ def onAppStart(app):
     app.characterImage2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage2.png'
     app.characterImage3='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage3.png'
     app.characterImage4='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage4.png'
-    app.characterBoostImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterBoostImage.png'
     app.characterImages=[app.characterImage1,app.characterImage2,app.characterImage3,app.characterImage4]
     app.characterImageIndex=0
     app.characterImage=app.characterImage1
+    app.characterBoostImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterBoostImage.png'
+    app.zapped1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapped1.png'
+    app.zapped2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapped2.png'
+    app.burnt1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/burnt1.png'
+    app.burnt2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/burnt2.png'
+    app.ded='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/ded.png'
     ##missiles
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/4/42/MissileJammer.png/revision/latest/thumbnail/width/360/height/360?cb=20120428044536
     app.fastRedMissile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/fastRedMissile.png'
@@ -87,6 +95,21 @@ def onAppStart(app):
     ##zappers
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/2/23/NewZapper.png/revision/latest?cb=20151016122706
     ##https://i0.wp.com/www.androidpure.com/wp-content/uploads/2015/07/Jetpack-Joyride-New-Zappers-e1436600208357.png
+    app.zapperLeft=None
+    app.zapperRight=None
+    app.zapperBtmLeft=None
+    app.zapperBtmRight=None
+    app.zapperTopLeft=None
+    app.zapperTopRight=None
+    app.zapperBtm=None
+    app.zapperTop=None
+    app.zapperHor=None
+    app.zapperVert=None
+    app.zapperDiag1=None
+    app.zapperDiag2=None
+    ##coins
+    ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
+    app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -143,6 +166,8 @@ def onStep(app):
         app.laserList=[]
         app.coinList=[]
         app.board=[([None]*app.cols) for row in range(app.rows)]
+        app.zapped=False
+        app.burnt=False
         app.zappersOn=True
         app.missilesOn=False
         app.lasersOn=False
@@ -150,11 +175,27 @@ def onStep(app):
         app.inMenus=True
 
 def cycleCharacterGraphic(app):
-    if app.grounded:
-        app.characterImageIndex=(app.characterImageIndex+1)%4
-        app.characterImage=app.characterImages[app.characterImageIndex]
-    elif not app.gameOver:
-        app.characterImage=app.characterBoostImage
+    if not app.gameOver:
+        if app.grounded:
+            app.characterImageIndex=(app.characterImageIndex+1)%4
+            app.characterImage=app.characterImages[app.characterImageIndex]
+        else:
+            app.characterImage=app.characterBoostImage
+    else:
+        if not app.grounded:
+            if app.zapped:
+                if app.steps%2!=0:
+                    app.characterImage=app.zapped1
+                else:
+                    app.characterImage=app.zapped2
+            elif app.burnt:
+                if app.steps%2!=0:
+                    app.characterImage=app.burnt1
+                else:
+                    app.characterImage=app.burnt2
+        else:
+            app.characterImage=app.ded
+
 
 def checkCollisions(app):
     cellWidth,cellHeight=getCellSize(app)
@@ -166,19 +207,22 @@ def checkCollisions(app):
                     cellLeft+(0.5*cellWidth),cellTop+(0.5*cellHeight))<
                     app.playerRadius+(0.5*cellWidth))):
                     app.gameOver=True
+                    app.zapped=True
     for missile in app.missileList:
         if (distance(app.playerCx,app.playerCy,missile.posX,missile.height)<
             app.playerRadius+missile.radius):
             app.gameOver=True
+            app.burnt=True
     for laser in app.laserList:
         if (((abs(laser.height-app.playerCy)<=app.playerRadius)or
             (abs(app.playerCy-(laser.height+cellHeight))<=app.playerRadius))
             and(laser.activated)):
             app.gameOver=True 
+            app.burnt=True
     for coinList in app.allCoinsList:
         for coin in coinList:
             if (distance(app.playerCx,app.playerCy,coin.x,coin.y)<=
-                app.coinCollectRadius+app.coinRadius):
+                app.coinCollectRadius+app.coinRadius and (coin.coinFill=='gold')):
                 coin.coinFill=None
                 app.thisGameCoins+=app.coinAdder
 
@@ -283,6 +327,7 @@ def redrawAll(app):
         drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
         drawPlayerHitbox(app)
         drawObjects(app)
+        drawCoinGraphic(app)
         drawMissileGraphic(app)
         drawLaserGraphic(app)
         drawCharacterGraphic(app)
@@ -292,6 +337,13 @@ def redrawAll(app):
         app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
         for gadgetButton in app.gadgetButtonList:
             gadgetButton.drawButton(app)
+
+def drawCoinGraphic(app):
+    for coinList in app.allCoinsList:
+        for coin in coinList:     
+            if coin.coinFill!=None:   
+                drawImage(app.coinImage,coin.x,coin.y,
+                width=app.coinRadius*2,height=app.coinRadius*2,align='center')
 
 def drawCharacterGraphic(app):
     #drawImage(app.characterSpriteSheet,0,0)
@@ -598,11 +650,4 @@ def main():
 
 if __name__=='__main__':
     main()
-
-#for different screens
-#test_redrawAll(app)
-#test2_redrawAll(app)
-#setActiveScreen('test')
-#runAppWithScreens(initialScreen='test')
-#game_onStep(app):
 
