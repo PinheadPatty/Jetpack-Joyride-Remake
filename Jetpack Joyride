@@ -1,8 +1,6 @@
 from cmu_graphics import *
 import math,copy
 import random
-from PIL import Image
-import os, pathlib
 
 def onAppStart(app):
     app.BestDistance=0
@@ -86,27 +84,15 @@ def onAppStart(app):
     app.blueMissileWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/blueMissileWarning.png'
     ##lasers
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/d/d7/Fires_laser.png/revision/latest?cb=20120511034357
-    app.laserEndLeft='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEndLeft.png'
-    app.laserEndRight='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEndRight.png'
+    app.laserEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEnd.png'
     ##https://i.imgur.com/zAtRU1W.jpg
     app.laserWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserWarning.png'
     ##https://cdn.mobygames.com/screenshots/16820647-jetpack-joyride-ipad-beware-of-flashing-lasers.png
     app.laserActive='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserActive.png'
     ##zappers
-    ##https://static.wikia.nocookie.net/jetpackjoyride/images/2/23/NewZapper.png/revision/latest?cb=20151016122706
     ##https://i0.wp.com/www.androidpure.com/wp-content/uploads/2015/07/Jetpack-Joyride-New-Zappers-e1436600208357.png
-    app.zapperLeft=None
-    app.zapperRight=None
-    app.zapperBtmLeft=None
-    app.zapperBtmRight=None
-    app.zapperTopLeft=None
-    app.zapperTopRight=None
-    app.zapperBtm=None
-    app.zapperTop=None
-    app.zapperHor=None
-    app.zapperVert=None
-    app.zapperDiag1=None
-    app.zapperDiag2=None
+    app.zapperEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperEnd.png'
+    app.zapperPiece='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperPiece.png'
     ##coins
     ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
     app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
@@ -226,7 +212,6 @@ def checkCollisions(app):
                 coin.coinFill=None
                 app.thisGameCoins+=app.coinAdder
 
-
 def keepPlayerInBounds(app):
     if (app.playerCy+app.playerRadius+app.dy>app.boardTop+app.boardHeight):
         app.dy=0
@@ -266,8 +251,8 @@ def moveObjects(app):
         if (missile.posX+missile.radius<0):
             app.missileList.remove(missile)
     for laser in app.laserList:
-        if ((laser.height<=app.boardTop) or 
-            (laser.height+cellHeight>=app.boardTop+app.boardHeight)):
+        if ((laser.height<app.boardTop) or 
+            (laser.height+cellHeight>app.boardTop+app.boardHeight)):
             laser.moving=-laser.moving
         laser.height+=4*laser.moving
     for laser in app.laserList:        
@@ -303,17 +288,19 @@ def addObjects(app):
         if app.lasersOn:
             app.zappersOn=False
             app.missilesOn=False
-            if app.steps%(1000//app.stepsPerSecond)==0:
+            if ((app.steps%(1000//app.stepsPerSecond)==0) and (app.steps%1000!=0)):
                 addLaser(app)
         else:
-            if app.zappersOn:
-                if (app.steps%50==0 and (app.steps%500!=0)):
-                    addZapper(app)
-                if app.steps%100==0 and (app.steps%500!=0):
-                    addMissile(app)
-            else:
-                if (app.steps%20==0 and (app.steps%500!=0)):
-                    addMissile(app)
+            if app.steps%1000!=0:
+                if app.zappersOn:
+                    
+                    if (app.steps%50==0 and (app.steps%500!=0)):
+                        addZapper(app)
+                    if app.steps%100==0 and (app.steps%500!=0):
+                        addMissile(app)
+                else:
+                    if (app.steps%20==0 and (app.steps%500!=0)):
+                        addMissile(app)
         if app.coinsOn:
             if app.steps%50==0:
                 addCoinList(app)
@@ -370,16 +357,20 @@ def drawMissileGraphic(app):
 def drawLaserGraphic(app):
     cellWidth, cellHeight = getCellSize(app)
     for laser in app.laserList:
-        drawImage(app.laserEndLeft,0,laser.height,width=cellWidth,
+        drawImage(app.laserEnd,0,laser.height,width=cellWidth,
                   height=cellHeight)
-        drawImage(app.laserEndRight,app.width,laser.height,width=cellWidth,
-                  height=cellHeight,align='right-top')
+        drawImage(app.laserEnd,app.width,laser.height,width=cellWidth,
+                  height=cellHeight,rotateAngle=180,align='right-top')
         if not laser.activated:
             drawImage(app.laserWarning,cellWidth,laser.height+(cellHeight/2)-2,
                     width=app.width-(2*cellWidth),height=4)
         else:
             drawImage(app.laserActive,cellWidth,laser.height,
                     width=app.width-(2*cellWidth),height=cellHeight)
+
+def drawZapperGraphic(app):
+    for zapper in app.zapperList:
+        pass
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
