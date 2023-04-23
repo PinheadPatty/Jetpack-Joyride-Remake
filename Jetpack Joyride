@@ -25,7 +25,7 @@ def onAppStart(app):
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
-    app.zapperList=[zapper(7,3,5,5)]
+    app.zapperList=[zapper(app,7,1,4,5)]
     app.missileList=[]
     app.laserList=[]
     app.playerCx=(app.boardWidth//app.cols)*4
@@ -183,7 +183,6 @@ def cycleCharacterGraphic(app):
         else:
             app.characterImage=app.ded
 
-
 def checkCollisions(app):
     cellWidth,cellHeight=getCellSize(app)
     for row in range(app.rows):
@@ -235,6 +234,8 @@ def movePlayer(app):
 def moveObjects(app):
     cellWidth,cellHeight=getCellSize(app)
     for zapper in app.zapperList:
+        zapper.x1-=cellWidth
+        zapper.x2-=cellWidth
         zapper.col-=1
     for zapper in app.zapperList:
         if (zapper.col+zapper.pixels<0):
@@ -294,7 +295,6 @@ def addObjects(app):
         else:
             if app.steps%1000!=0:
                 if app.zappersOn:
-                    
                     if (app.steps%50==0 and (app.steps%500!=0)):
                         addZapper(app)
                     if app.steps%100==0 and (app.steps%500!=0):
@@ -374,42 +374,60 @@ def drawZapperGraphic(app):
     if app.zapperList!=[]:
         cellWidth, cellHeight = getCellSize(app)
         for zapper in app.zapperList:
-            cellLeft,cellTop=getCellLeftTop(app, zapper.heightRow, zapper.col)
-            sideLength=zapper.pixels*cellWidth
-            x1=cellLeft+(cellWidth/2)
-            y1=cellTop+(cellHeight/2)
             if zapper.angle==0:
                 angle=0
-                length=sideLength
-                x2=cellLeft+length-(cellWidth/2)
-                y2=cellTop+(cellHeight/2)
-                mult=1
+                mult=2
             elif zapper.angle==1:
                 angle=-45
-                y1+=cellHeight
-                length=sideLength*(2**0.5)
-                x2=cellLeft+sideLength-(cellWidth/2)
-                y2=cellTop-sideLength+(2.25*cellHeight)
-                mult=1.25
+                mult=3
             elif zapper.angle==2:
                 angle=90
-                length=sideLength
-                x2=cellLeft+(cellWidth/2)
-                y2=cellTop+length-(cellWidth/4)
-                mult=1
+                mult=2
             else:
                 angle=45
-                length=sideLength*(2**0.5)
-                x2=cellLeft+sideLength-(cellWidth/2)
-                y2=cellTop+sideLength-(cellHeight/4)
-                mult=1.25   
+                mult=3
+            print(zapper.x1,zapper.y1,zapper.x2,zapper.y2)
+            print(zapper.heightRow,zapper.col)
+            drawImage(app.zapperEnd,zapper.x1,zapper.y1,align='center',
+                    rotateAngle=angle+180,width=cellWidth*mult,height=cellHeight*mult)
+            drawImage(app.zapperEnd,zapper.x2,zapper.y2,align='center',
+                    rotateAngle=angle,width=cellWidth*mult,height=cellHeight*mult)
+        #     cellLeft,cellTop=getCellLeftTop(app, zapper.heightRow, zapper.col)
+        #     sideLength=zapper.pixels*cellWidth
+        #     x1=cellLeft+(cellWidth/2)
+        #     y1=cellTop+(cellHeight/2)
+        #     if zapper.angle==0:
+        #         angle=0
+        #         length=sideLength
+        #         x2=cellLeft+length-(cellWidth/2)
+        #         y2=cellTop+(cellHeight/2)
+        #         mult=1
+        #     elif zapper.angle==1:
+        #         angle=-45
+        #         y1+=2*cellHeight
+        #         length=sideLength*(2**0.5)
+        #         x2=cellLeft+sideLength-(cellWidth/2)
+        #         y2=cellTop-sideLength+(3.25*cellHeight)
+        #         mult=1.25
+        #     elif zapper.angle==2:
+        #         angle=90
+        #         length=sideLength
+        #         x2=cellLeft+(cellWidth/2)
+        #         y2=cellTop+length-(cellWidth/4)
+        #         mult=1
+        #     else:
+        #         angle=45
+        #         length=sideLength*(2**0.5)
+        #         x2=cellLeft+sideLength-(cellWidth/2)
+        #         y2=cellTop+sideLength-(cellHeight/4)
+        #         mult=1.25   
         #drawImage(app.zapperPiece,cellLeft+cellWidth,cellTop,
                 #rotateAngle=angle,width=length-(2*cellWidth),
                 #height=cellHeight*2.25)
-        drawImage(app.zapperEnd,x1,y1,rotateAngle=angle+180,
-                width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
-        drawImage(app.zapperEnd,x2,y2,rotateAngle=angle,
-                width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
+        # drawImage(app.zapperEnd,zapper.x1,zapper.y1,rotateAngle=angle+180,
+        #         width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
+        # drawImage(app.zapperEnd,x2,y2,rotateAngle=angle,
+        #         width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
@@ -439,14 +457,49 @@ def drawObjects(app):
 #pixels: in range of (2*app.rows)//3? of app.rows--longer zappers are less likely?
 #zappers
 class zapper:
-    def __init__(self,pixels,angle,heightRow,col):
+    def __init__(self,app,pixels,angle,heightRow,col):
+        cellWidth,cellHeight=getCellSize(app)
         self.pixels=pixels
         self.angle=angle
         self.heightRow=heightRow
         self.col=col
+        self.x1,self.y1=getCellLeftTop(app,self.heightRow,self.col)
+        self.x1+=(cellWidth*3/2)
+        self.y1+=(cellWidth/2)
+        heightRow=self.heightRow
+        if self.angle==0:
+            self.x2=self.x1+((self.pixels-1)*cellWidth)
+            self.y2=self.y1
+        elif self.angle==1:
+            self.x2=self.x1+((self.pixels-1)*cellWidth)
+            self.y2=self.y1-((self.pixels-1)*cellHeight)
+            while ((heightRow-self.pixels)<-1):
+                heightRow+=1
+                self.y1+=cellHeight
+                self.y2+=cellHeight
+                self.heightRow+=1
+        elif self.angle==2:
+            self.x2=self.x1
+            self.y2=self.y1+((self.pixels-1)*cellHeight)
+            while ((heightRow+self.pixels)>app.rows):
+                heightRow-=1
+                self.y1-=cellHeight
+                self.y2-=cellHeight
+                self.heightRow-=1
+        else:
+            self.x2=self.x1+((self.pixels-1)*cellWidth)
+            self.y2=self.y1+((self.pixels-1)*cellHeight)
+            while ((heightRow+self.pixels)>app.rows):
+                heightRow-=1
+                self.y1-=cellHeight
+                self.y2-=cellHeight
+                self.heightRow-=1
     def __repr__(self):
         return f'col:{self.col},{self.pixels} pixels'
     def drawZapper(self,app):
+        cellWidth, cellHeight = getCellSize(app)
+        drawCircle(self.x1,self.y1,5)
+        drawCircle(self.x2,self.y2,5)
         heightRow=self.heightRow
         col=self.col
         if self.angle==0:
@@ -456,8 +509,6 @@ class zapper:
             if(app.board[heightRow][col]=='yellow'):
                 app.board[heightRow][col]=None
         elif self.angle==1:
-            while ((heightRow-self.pixels)<-1):
-                heightRow+=1
             for i in range(self.pixels):
                 app.board[heightRow][col]='yellow'
                 if(app.board[heightRow][col+1]=='yellow'):
@@ -465,16 +516,12 @@ class zapper:
                 heightRow-=1
                 col+=1
         elif self.angle==2:
-            while ((heightRow+self.pixels)>app.rows):
-                heightRow-=1
             for i in range(self.pixels):
                 app.board[heightRow][col]='yellow'
                 if(app.board[heightRow][col+1]=='yellow'):
                     app.board[heightRow][col+1]=None
                 heightRow+=1
         elif self.angle==3:
-            while ((heightRow+self.pixels)>app.rows):
-                heightRow-=1
             for i in range(self.pixels):
                 app.board[heightRow][col]='yellow'
                 if(app.board[heightRow][col+1]=='yellow'):
@@ -487,7 +534,7 @@ def addZapper(app):
     randAngle=random.randrange(4)
     randRowHeight=random.randrange(app.rows)
     initialCol=((app.cols*3)//4)
-    app.zapperList.append(zapper(randPixels,randAngle,randRowHeight,initialCol))
+    app.zapperList.append(zapper(app,randPixels,randAngle,randRowHeight,initialCol))
 ##missiles
 ##0=small&fast,1=large&slow
 class missile:
