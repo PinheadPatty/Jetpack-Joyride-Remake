@@ -90,8 +90,6 @@ def onAppStart(app):
     ##https://cdn.mobygames.com/screenshots/16820647-jetpack-joyride-ipad-beware-of-flashing-lasers.png
     app.laserActive='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserActive.png'
     ##zappers
-    ##https://i0.wp.com/www.androidpure.com/wp-content/uploads/2015/07/Jetpack-Joyride-New-Zappers-e1436600208357.png
-    app.zapperPiece='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperPiece.png'
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/ad/Dezapinator.PNG/revision/latest/thumbnail/width/360/height/360?cb=20120526011759
     app.zapperEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperEnd.png'
     ##coins
@@ -310,8 +308,8 @@ def redrawAll(app):
     if app.playing:
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
-        drawBoard(app)
-        # drawPlayerHitbox(app)
+        #drawBoard(app)
+        #drawPlayerHitbox(app)
         drawObjects(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
         drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
@@ -374,60 +372,32 @@ def drawZapperGraphic(app):
     if app.zapperList!=[]:
         cellWidth, cellHeight = getCellSize(app)
         for zapper in app.zapperList:
+            sideLength=zapper.pixels*cellWidth
             if zapper.angle==0:
                 angle=0
                 mult=2
+                length=sideLength
             elif zapper.angle==1:
                 angle=-45
                 mult=3
+                length=sideLength*(2**0.5)
             elif zapper.angle==2:
                 angle=90
                 mult=2
+                length=sideLength
             else:
                 angle=45
                 mult=3
-            print(zapper.x1,zapper.y1,zapper.x2,zapper.y2)
-            print(zapper.heightRow,zapper.col)
+                length=sideLength*(2**0.5)
+            posX=(zapper.x1+zapper.x2)/2
+            posY=(zapper.y1+zapper.y2)/2
+
+            drawRect(posX,posY,length,cellHeight*7/8,fill='yellow',
+                    border='gold',rotateAngle=angle,borderWidth=7,align='center')
             drawImage(app.zapperEnd,zapper.x1,zapper.y1,align='center',
                     rotateAngle=angle+180,width=cellWidth*mult,height=cellHeight*mult)
             drawImage(app.zapperEnd,zapper.x2,zapper.y2,align='center',
                     rotateAngle=angle,width=cellWidth*mult,height=cellHeight*mult)
-        #     cellLeft,cellTop=getCellLeftTop(app, zapper.heightRow, zapper.col)
-        #     sideLength=zapper.pixels*cellWidth
-        #     x1=cellLeft+(cellWidth/2)
-        #     y1=cellTop+(cellHeight/2)
-        #     if zapper.angle==0:
-        #         angle=0
-        #         length=sideLength
-        #         x2=cellLeft+length-(cellWidth/2)
-        #         y2=cellTop+(cellHeight/2)
-        #         mult=1
-        #     elif zapper.angle==1:
-        #         angle=-45
-        #         y1+=2*cellHeight
-        #         length=sideLength*(2**0.5)
-        #         x2=cellLeft+sideLength-(cellWidth/2)
-        #         y2=cellTop-sideLength+(3.25*cellHeight)
-        #         mult=1.25
-        #     elif zapper.angle==2:
-        #         angle=90
-        #         length=sideLength
-        #         x2=cellLeft+(cellWidth/2)
-        #         y2=cellTop+length-(cellWidth/4)
-        #         mult=1
-        #     else:
-        #         angle=45
-        #         length=sideLength*(2**0.5)
-        #         x2=cellLeft+sideLength-(cellWidth/2)
-        #         y2=cellTop+sideLength-(cellHeight/4)
-        #         mult=1.25   
-        #drawImage(app.zapperPiece,cellLeft+cellWidth,cellTop,
-                #rotateAngle=angle,width=length-(2*cellWidth),
-                #height=cellHeight*2.25)
-        # drawImage(app.zapperEnd,zapper.x1,zapper.y1,rotateAngle=angle+180,
-        #         width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
-        # drawImage(app.zapperEnd,x2,y2,rotateAngle=angle,
-        #         width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
