@@ -25,7 +25,7 @@ def onAppStart(app):
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
-    app.zapperList=[zapper(7,0,5,5)]
+    app.zapperList=[zapper(7,3,5,5)]
     app.missileList=[]
     app.laserList=[]
     app.playerCx=(app.boardWidth//app.cols)*4
@@ -406,9 +406,9 @@ def drawZapperGraphic(app):
         #drawImage(app.zapperPiece,cellLeft+cellWidth,cellTop,
                 #rotateAngle=angle,width=length-(2*cellWidth),
                 #height=cellHeight*2.25)
-        drawImage(app.zapperEnd,x1+cellWidth,y1,rotateAngle=angle+180,
+        drawImage(app.zapperEnd,x1,y1,rotateAngle=angle+180,
                 width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
-        drawImage(app.zapperEnd,x2+cellWidth,y2,rotateAngle=angle,
+        drawImage(app.zapperEnd,x2,y2,rotateAngle=angle,
                 width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
 
 def drawMenuLabels(app):
