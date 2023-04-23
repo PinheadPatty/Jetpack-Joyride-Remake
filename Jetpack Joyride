@@ -25,14 +25,14 @@ def onAppStart(app):
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
-    app.zapperList=[]
+    app.zapperList=[zapper(7,0,5,5)]
     app.missileList=[]
     app.laserList=[]
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
-    app.magnetism=gadgetButton(app,(app.width/2),70,0,magnetismGadgetToggle)
-    app.doubleCoins=gadgetButton(app,(app.width/2)+(app.width/8),70,0,doubleCoinsGadgetToggle)
+    app.magnetism=gadgetButton((app.width/2),70,0,magnetismGadgetToggle)
+    app.doubleCoins=gadgetButton((app.width/2)+(app.width/8),70,0,doubleCoinsGadgetToggle)
     app.gadgetButtonList=[app.magnetism,app.doubleCoins]
     app.selectedGadget=None
     app.dy=0
@@ -91,8 +91,9 @@ def onAppStart(app):
     app.laserActive='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserActive.png'
     ##zappers
     ##https://i0.wp.com/www.androidpure.com/wp-content/uploads/2015/07/Jetpack-Joyride-New-Zappers-e1436600208357.png
-    app.zapperEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperEnd.png'
     app.zapperPiece='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperPiece.png'
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/ad/Dezapinator.PNG/revision/latest/thumbnail/width/360/height/360?cb=20120526011759
+    app.zapperEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperEnd.png'
     ##coins
     ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
     app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
@@ -310,11 +311,12 @@ def redrawAll(app):
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
         drawBoard(app)
+        # drawPlayerHitbox(app)
+        drawObjects(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
         drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
-        drawPlayerHitbox(app)
-        drawObjects(app)
         drawCoinGraphic(app)
+        drawZapperGraphic(app)
         drawMissileGraphic(app)
         drawLaserGraphic(app)
         drawCharacterGraphic(app)
@@ -369,8 +371,45 @@ def drawLaserGraphic(app):
                     width=app.width-(2*cellWidth),height=cellHeight)
 
 def drawZapperGraphic(app):
-    for zapper in app.zapperList:
-        pass
+    if app.zapperList!=[]:
+        cellWidth, cellHeight = getCellSize(app)
+        for zapper in app.zapperList:
+            cellLeft,cellTop=getCellLeftTop(app, zapper.heightRow, zapper.col)
+            sideLength=zapper.pixels*cellWidth
+            x1=cellLeft+(cellWidth/2)
+            y1=cellTop+(cellHeight/2)
+            if zapper.angle==0:
+                angle=0
+                length=sideLength
+                x2=cellLeft+length-(cellWidth/2)
+                y2=cellTop+(cellHeight/2)
+                mult=1
+            elif zapper.angle==1:
+                angle=-45
+                y1+=cellHeight
+                length=sideLength*(2**0.5)
+                x2=cellLeft+sideLength-(cellWidth/2)
+                y2=cellTop-sideLength+(2.25*cellHeight)
+                mult=1.25
+            elif zapper.angle==2:
+                angle=90
+                length=sideLength
+                x2=cellLeft+(cellWidth/2)
+                y2=cellTop+length-(cellWidth/4)
+                mult=1
+            else:
+                angle=45
+                length=sideLength*(2**0.5)
+                x2=cellLeft+sideLength-(cellWidth/2)
+                y2=cellTop+sideLength-(cellHeight/4)
+                mult=1.25   
+        #drawImage(app.zapperPiece,cellLeft+cellWidth,cellTop,
+                #rotateAngle=angle,width=length-(2*cellWidth),
+                #height=cellHeight*2.25)
+        drawImage(app.zapperEnd,x1+cellWidth,y1,rotateAngle=angle+180,
+                width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
+        drawImage(app.zapperEnd,x2+cellWidth,y2,rotateAngle=angle,
+                width=cellWidth*2*mult,height=cellHeight*2*mult,align='center')
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
@@ -532,7 +571,7 @@ def drawPlayerHitbox(app):
 #app.myButton=(self,buttonFunction)
 
 class gadgetButton:
-    def __init__(self,app,x,y,price,buttonFunction):
+    def __init__(self,x,y,price,buttonFunction):
         self.x=x
         self.y=y
         self.price=price
