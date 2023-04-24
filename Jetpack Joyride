@@ -31,8 +31,15 @@ def onAppStart(app):
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
-    app.magnetism=gadgetButton((app.width/2),70,0,magnetismGadgetToggle)
-    app.doubleCoins=gadgetButton((app.width/2)+(app.width/8),70,0,doubleCoinsGadgetToggle)
+    ##magnet
+    ##https://www.freeiconspng.com/img/45627
+    app.magnetImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/magnet.png'
+    ##coins
+    ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
+    app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
+    app.doubleCoinsImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/doubleCoin.png'
+    app.magnetism=gadgetButton((app.width/2),70,0,app.magnetImage,magnetismGadgetToggle)
+    app.doubleCoins=gadgetButton((app.width/2)+(app.width/8),70,0,app.doubleCoinsImage,doubleCoinsGadgetToggle)
     app.gadgetButtonList=[app.magnetism,app.doubleCoins]
     app.selectedGadget=None
     app.dy=0
@@ -57,8 +64,9 @@ def onAppStart(app):
     app.backX1=0
     app.backX2=app.width
     app.backY=0
-    app.background='grey'
-
+    app.background=rgb(63,76,113)
+    app.columns=[column(0),column(app.width/2),column(app.width)]
+    app.lights=[light((app.width/2)-60),light(((app.width/2)-60)+app.width)]
     ##IMAGES
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
     ##https://express.adobe.com/sp/design/post/urn:aaid:sc:VA6C2:896e421d-5470-4fd2-b5d6-cb0ad68cb17a?workflow=quicktask&qId=remove-background&actionLocation=seo&autoDownload=true
@@ -99,9 +107,6 @@ def onAppStart(app):
     ##zappers
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/ad/Dezapinator.PNG/revision/latest/thumbnail/width/360/height/360?cb=20120526011759
     app.zapperEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperEnd.png'
-    ##coins
-    ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
-    app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
     ##background
     ##Screenshots from Jetpack Joyride 'Halfbrick Studios'
     app.backgroundImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/background.png'
@@ -261,12 +266,20 @@ def movePlayer(app):
 
 def moveBackground(app):
     cellWidth,cellHeight=getCellSize(app)
-    app.backX1-=cellWidth
-    app.backX2-=cellWidth
-    if app.backX1<=-app.width:
-        app.backX1=app.width
-    if app.backX2<=-app.width:
-        app.backX2=app.width
+    for column in app.columns:
+        if column.x<=-60:
+            column.x=(app.width*3/2)-60
+        column.x-=cellWidth
+    for light in app.lights:
+        if light.x<=-10:
+            light.x=(app.width*2)-10
+        light.x-=cellWidth
+    # app.backX1-=cellWidth
+    # app.backX2-=cellWidth
+    # if app.backX1<=-app.width:
+    #     app.backX1=app.width
+    # if app.backX2<=-app.width:
+    #     app.backX2=app.width
 
 def moveObjects(app):
     cellWidth,cellHeight=getCellSize(app)
@@ -348,7 +361,7 @@ def redrawAll(app):
     if app.playing:
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
-        drawBoard(app)
+        #drawBoard(app)
         #drawPlayerHitbox(app)
         drawObjects(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
@@ -435,14 +448,41 @@ def drawZapperGraphic(app):
                     rotateAngle=angle+180,width=cellWidth*mult,height=cellHeight*mult)
             drawImage(app.zapperEnd,zapper.x2,zapper.y2,align='center',
                     rotateAngle=angle,width=cellWidth*mult,height=cellHeight*mult)
+class column:
+    def __init__(self,x):
+        self.x=x
+    def drawColumn(self,app):
+        drawRegularPolygon(self.x,60,60,3,
+                fill=rgb(131,139,164),rotateAngle=180)
+        drawRegularPolygon(self.x,app.height-60,60,3,
+                fill=rgb(131,139,164))
+        drawLine(self.x,0,self.x,app.height,fill=rgb(131,139,164),
+                 lineWidth=20)
+        
+class light:
+    def __init__(self,x):
+        self.x=x
+    def drawLight(self,app):
+        drawCircle(self.x,app.boardTop+70,10,fill='red',border='black')
 
 def drawBackground(app):
     if app.playing:
+        for column in app.columns:
+            column.drawColumn(app)
+        for light in app.lights:
+            light.drawLight(app)
+        drawRect(0,0,app.width,app.boardTop*2,fill='lightGrey',border='black')
+        drawRect(0,app.boardHeight,app.width,
+                 app.boardTop*2,fill='lightGrey',border='black')
+        drawRect(0,app.boardTop*2,app.width,app.boardTop,fill=rgb(131,139,164),
+                 border='black')
+        drawRect(0,app.boardHeight-app.boardTop,app.width,app.boardTop,fill=
+                 rgb(131,139,164),border='black')
+        #drawRect(0,app.boardTop,)
         # drawImage(app.backgroundImage,app.backX1,app.backY,width=app.width,
         #         height=app.height)
         # drawImage(app.backgroundImage,app.backX2,app.backY,width=app.width,
         #         height=app.height)
-        pass
     else:
         drawImage(app.menuBackground,app.width*2/5,0,
                   width=app.width*3/5,height=app.height)
@@ -473,27 +513,30 @@ def drawMenuLabels(app):
     drawLabel('PLAY AGAIN',(app.width*9)/10,(app.height*5)/6,
     size=40,bold=True,align='right')
     drawLabel(f':{app.totalCoins}',80,70,size=40,align='left',fill='gold',
-              bold=True)
+              bold=True,border='black')
     drawLabel(f'BEST DIST: {app.bestDistance}M',30,30,size=20,align='left',
-              fill='white',bold=True)
+              fill='white',bold=True,border='black',borderWidth=1)
 
 def drawObjects(app):
     for zapper in app.zapperList:
         zapper.drawZapper(app)
-    for missile in app.missileList:
-        if not missile.activated:
-            missile.drawMissileWarning(app)
-        else:
-            missile.drawMissile()
-    for laser in app.laserList:
-        laser.drawLaser(app)
-    for coinList in app.allCoinsList:
-        for coin in coinList:
-            coin.drawCoin(app)  
+    # for missile in app.missileList:
+    #     if not missile.activated:
+    #         missile.drawMissileWarning(app)
+    #     else:
+    #         missile.drawMissile()
+    # for laser in app.laserList:
+    #     laser.drawLaser(app)
+    # for coinList in app.allCoinsList:
+    #     for coin in coinList:
+    #         coin.drawCoin(app)  
 
 def drawProfile(app):
     drawImage(app.profile,app.width/8,app.height*1/3,
               width=app.width/5,height=app.width/5)
+    if app.selectedGadget!=None:
+        drawImage(app.selectedGadget.image,app.width/6,app.height*1/3,
+                  width=app.width/13,height=app.width/13)
 
 
 #Obstacles***
@@ -654,12 +697,13 @@ def drawPlayerHitbox(app):
 
 #buttons
 class gadgetButton:
-    def __init__(self,x,y,price,buttonFunction):
+    def __init__(self,x,y,price,image,buttonFunction):
         self.x=x
         self.y=y
         self.price=price
         self.width=80
         self.height=80
+        self.image=image
         self.buttonFunction=buttonFunction
         self.unlocked=False
     def __eq__(self,other):
@@ -669,15 +713,19 @@ class gadgetButton:
             return False
     def drawButton(self,app):
         if self.unlocked:
-            buttonFill=None
+            buttonOpacity=0
         else:
-            buttonFill='lightGrey'
+            buttonOpacity=80
         if app.selectedGadget==self:
             buttonBorder='green'
         else:
             buttonBorder='red'
-        drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,
-                 border=buttonBorder,borderWidth=5)
+        drawImage(self.image,self.x,self.y,width=self.width,height=self.height)
+        drawRect(self.x,self.y,self.width,self.height,fill='grey',
+                 opacity=buttonOpacity,border=buttonBorder,borderWidth=5)
+        if not self.unlocked:
+            drawLabel(f'{self.price}',self.x+(self.width/2),
+                self.y+(self.height/2),fill='gold',size=30,bold=True,border='black')
     def checkForPress(self,app,mouseX,mouseY):
         if ((self.x<=mouseX<=self.x+self.width)and
             (self.y<=mouseY<=self.y+self.height)):
