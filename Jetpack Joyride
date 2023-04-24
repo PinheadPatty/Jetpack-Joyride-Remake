@@ -54,6 +54,9 @@ def onAppStart(app):
     app.coinsOn=True
     app.zapped=False
     app.burnt=False
+    app.backX1=0
+    app.backX2=app.width
+    app.backY=0
 
     ##IMAGES
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
@@ -95,6 +98,9 @@ def onAppStart(app):
     ##coins
     ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
     app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
+    ##background
+    ##Screenshots from Jetpack Joyride 'Halfbrick Studios'
+    app.backgroundImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/background.png'
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -130,6 +136,7 @@ def onStep(app):
         cycleCharacterGraphic(app)
         checkCollisions(app)
         keepPlayerInBounds(app)
+        moveBackground(app)
         movePlayer(app)
         moveObjects(app)
         #app.playingScreen to the left and loop image
@@ -229,6 +236,15 @@ def movePlayer(app):
             app.dy+=app.d2y
     app.playerCy+=app.dy
 
+def moveBackground(app):
+    cellWidth,cellHeight=getCellSize(app)
+    app.backX1-=cellWidth
+    app.backX2-=cellWidth
+    if app.backX1<=-app.width:
+        app.backX1=app.width
+    if app.backX2<=-app.width:
+        app.backX2=app.width
+
 def moveObjects(app):
     cellWidth,cellHeight=getCellSize(app)
     for zapper in app.zapperList:
@@ -313,6 +329,7 @@ def redrawAll(app):
         drawObjects(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
         drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
+        drawBackground(app)
         drawCoinGraphic(app)
         drawZapperGraphic(app)
         drawMissileGraphic(app)
@@ -398,6 +415,12 @@ def drawZapperGraphic(app):
                     rotateAngle=angle+180,width=cellWidth*mult,height=cellHeight*mult)
             drawImage(app.zapperEnd,zapper.x2,zapper.y2,align='center',
                     rotateAngle=angle,width=cellWidth*mult,height=cellHeight*mult)
+
+def drawBackground(app):
+    drawImage(app.backgroundImage,app.backX1,app.backY,width=app.width,
+              height=app.height)
+    drawImage(app.backgroundImage,app.backX2,app.backY,width=app.width,
+              height=app.height)
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
