@@ -57,6 +57,7 @@ def onAppStart(app):
     app.backX1=0
     app.backX2=app.width
     app.backY=0
+    app.background='grey'
 
     ##IMAGES
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
@@ -77,6 +78,9 @@ def onAppStart(app):
     app.burnt1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/burnt1.png'
     app.burnt2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/burnt2.png'
     app.ded='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/ded.png'
+    ##profile
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/1/12/BarrySpriteJJ1.png/revision/latest/scale-to-width-down/250?cb=20210603104616
+    app.profile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/profile.png'
     ##missiles
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/4/42/MissileJammer.png/revision/latest/thumbnail/width/360/height/360?cb=20120428044536
     app.fastRedMissile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/fastRedMissile.png'
@@ -101,6 +105,17 @@ def onAppStart(app):
     ##background
     ##Screenshots from Jetpack Joyride 'Halfbrick Studios'
     app.backgroundImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/background.png'
+    ##menu background
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/1/11/768E25C7-A707-460D-861C-FD9E2E6040D3.jpeg/revision/latest/scale-to-width-down/700?cb=20201025011227
+    app.menuBackground='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuBackground.jpg'
+    ##inGameMusic
+    ##https://vgmsite.com/soundtracks/jetpack-joyride/nrledqme/Jetpack%20Joyride.mp3
+    inGameMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/inGameMusic.mp3'
+    #app.inGameMusic=Sound(inGameMusic)
+    ##menuMusic
+    ##https://downloads.khinsider.com/cp/add_album/10524
+    menuMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuMusic.mp3'
+    #app.menuMusic=Sound(app.menuMusic)
 
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
@@ -126,8 +141,12 @@ def onMousePress(app,mouseX,mouseY):
 
 def onStep(app):
     if app.playing:
+        #app.menuMusic.pause()
+        #app.inGameMusic.play(loop=True)
         if app.gameOver:
             app.boosting=False
+            #app.inGameMusic.pause()
+            #app.menuMusic.play(loop=True)
             if (app.stepsPerSecond>1):
                 if app.grounded:
                     app.stepsPerSecond/=1.3
@@ -324,18 +343,19 @@ def redrawAll(app):
     if app.playing:
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
-        #drawBoard(app)
+        drawBoard(app)
         #drawPlayerHitbox(app)
         drawObjects(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
         drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
-        drawBackground(app)
+        #drawBackground(app)
         drawCoinGraphic(app)
         drawZapperGraphic(app)
         drawMissileGraphic(app)
         drawLaserGraphic(app)
         drawCharacterGraphic(app)
     elif app.inMenus:
+        drawProfile(app)
         drawMenuLabels(app)
         drawRect(app.playGameButtonX,app.playGameButtonY,
         app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
@@ -409,7 +429,7 @@ def drawZapperGraphic(app):
             posX=(zapper.x1+zapper.x2)/2
             posY=(zapper.y1+zapper.y2)/2
 
-            drawRect(posX,posY,length,cellHeight*7/8,fill='yellow',
+            drawRect(posX,posY,length-cellWidth,cellHeight*7/8,fill='yellow',
                     border='gold',rotateAngle=angle,borderWidth=7,align='center')
             drawImage(app.zapperEnd,zapper.x1,zapper.y1,align='center',
                     rotateAngle=angle+180,width=cellWidth*mult,height=cellHeight*mult)
@@ -442,7 +462,11 @@ def drawObjects(app):
         laser.drawLaser(app)
     for coinList in app.allCoinsList:
         for coin in coinList:
-            coin.drawCoin(app)          
+            coin.drawCoin(app)  
+
+def drawProfile(app):
+    drawImage(app.profile,app.width/7,app.height/2,
+              width=app.width/5,height=app.width/5)        
 
 
 #Obstacles***
@@ -720,4 +744,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
