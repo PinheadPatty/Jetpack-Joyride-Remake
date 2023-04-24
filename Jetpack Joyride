@@ -535,8 +535,8 @@ def drawProfile(app):
     drawImage(app.profile,app.width/8,app.height*1/3,
               width=app.width/5,height=app.width/5)
     if app.selectedGadget!=None:
-        drawImage(app.selectedGadget.image,app.width/6,app.height*1/3,
-                  width=app.width/13,height=app.width/13)
+        drawImage(app.selectedGadget.image,(app.width/4)+10,(app.height/2)+25,
+                  width=app.width/20,height=app.width/20)
 
 
 #Obstacles***
