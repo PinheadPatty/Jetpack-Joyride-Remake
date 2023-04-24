@@ -38,10 +38,15 @@ def onAppStart(app):
     ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
     app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
     app.doubleCoinsImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/doubleCoin.png'
-    app.magnetism=gadgetButton((app.width/2),70,0,app.magnetImage,magnetismGadgetToggle)
-    app.doubleCoins=gadgetButton((app.width/2)+(app.width/8),70,0,app.doubleCoinsImage,doubleCoinsGadgetToggle)
-    app.gadgetButtonList=[app.magnetism,app.doubleCoins]
+    app.magnetism=button('gadget',(app.width/2),70,0,app.magnetImage,magnetismGadgetToggle)
+    app.doubleCoins=button('gadget',(app.width/2)+(app.width/8),70,0,app.doubleCoinsImage,doubleCoinsGadgetToggle)
     app.selectedGadget=None
+    ##balloon
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/f/fb/DIY_Jetpack_%28icon%29.jpg/revision/latest?cb=20210326125613
+    app.balloonJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/balloon.png'
+    app.balloonJetpack=button('jetpack',(app.width/2),220,0,app.balloonJetpackImage,jetpackFunction)
+    app.selectedJetpack=None
+    app.buttonList=[app.magnetism,app.doubleCoins,app.balloonJetpack]
     app.dy=0
     app.d2y=2
     app.boosting=False
@@ -143,10 +148,10 @@ def onMousePress(app,mouseX,mouseY):
             app.inMenus=False
             app.playing=True
         else:
-            for gadgetButton in app.gadgetButtonList:
-                gadgetButton.checkForPress(app,mouseX,mouseY)
-            for gadgetButton in app.gadgetButtonList:
-                gadgetButton.callButtonFunction(app)
+            for button in app.buttonList:
+                button.checkForPress(app,mouseX,mouseY)
+            for button in app.buttonList:
+                button.callButtonFunction(app)
 
 def onStep(app):
     if app.playing:
@@ -361,11 +366,14 @@ def redrawAll(app):
     if app.playing:
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
+        drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
+        drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
+        if app.selectedGadget!=None:
+            drawImage(app.selectedGadget.image,(app.width/4)+10,(app.height/2)+25,
+                    width=app.width/20,height=app.width/20)
         #drawBoard(app)
         #drawPlayerHitbox(app)
         drawObjects(app)
-        drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
-        drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
         drawCoinGraphic(app)
         drawZapperGraphic(app)
         drawMissileGraphic(app)
@@ -503,8 +511,8 @@ def drawMenuInterface(app):
              borderWidth=5,opacity=80,border='black',align='center')
     drawRect((app.width*7/10),(app.height/2)-40,180,50,fill='lightGrey',
              borderWidth=5,opacity=80,border='black',align='center')
-    for gadgetButton in app.gadgetButtonList:
-        gadgetButton.drawButton(app)
+    for button in app.buttonList:
+        button.drawButton(app)
     drawMenuLabels(app)
 
 def drawMenuLabels(app):
@@ -537,6 +545,9 @@ def drawProfile(app):
     if app.selectedGadget!=None:
         drawImage(app.selectedGadget.image,(app.width/4)+10,(app.height/2)+25,
                   width=app.width/20,height=app.width/20)
+    if app.selectedJetpack!=None:
+        drawImage(app.selectedJetpack.image,(app.width/7),(app.height/2)+40,
+                  width=app.width/5,height=app.width/5,align='center')
 
 
 #Obstacles***
@@ -696,8 +707,9 @@ def drawPlayerHitbox(app):
     drawCircle(app.playerCx,app.playerCy,app.playerRadius,border='black',fill=None)
 
 #buttons
-class gadgetButton:
-    def __init__(self,x,y,price,image,buttonFunction):
+class button:
+    def __init__(self,type,x,y,price,image,buttonFunction):
+        self.type=type
         self.x=x
         self.y=y
         self.price=price
@@ -707,22 +719,28 @@ class gadgetButton:
         self.buttonFunction=buttonFunction
         self.unlocked=False
     def __eq__(self,other):
-        if isinstance(other,gadgetButton)and self.x==other.x:
+        if isinstance(other,button)and self.x==other.x and self.type==other.type:
             return True
         else:
             return False
     def drawButton(self,app):
         if self.unlocked:
-            buttonOpacity=0
+            buttonFill=None
         else:
-            buttonOpacity=80
-        if app.selectedGadget==self:
-            buttonBorder='green'
-        else:
-            buttonBorder='red'
-        drawImage(self.image,self.x,self.y,width=self.width,height=self.height)
-        drawRect(self.x,self.y,self.width,self.height,fill='grey',
-                 opacity=buttonOpacity,border=buttonBorder,borderWidth=5)
+            buttonFill='grey'
+        if self.type=='gadget':
+            if app.selectedGadget==self:
+                buttonBorder='green'
+            else:
+                buttonBorder='red'
+        elif self.type=='jetpack':
+            if app.selectedJetpack==self:
+                buttonBorder='green'
+            else:
+                buttonBorder='red'
+        drawImage(self.image,self.x+5,self.y+5,width=self.width-10,height=self.height-10)
+        drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,
+                 opacity=80,border=buttonBorder,borderWidth=5)
         if not self.unlocked:
             drawLabel(f'{self.price}',self.x+(self.width/2),
                 self.y+(self.height/2),fill='gold',size=30,bold=True,border='black')
@@ -732,10 +750,16 @@ class gadgetButton:
             if (app.totalCoins>=self.price and self.unlocked!=True):
                 self.unlocked=True
                 app.totalCoins-=self.price
-            if (self.unlocked and app.selectedGadget!=self):
-                app.selectedGadget=self
-            else:
-                app.selectedGadget=None
+            if (self.type=='gadget'):
+                if (self.unlocked and app.selectedGadget!=self):
+                    app.selectedGadget=self
+                else:
+                    app.selectedGadget=None
+            elif (self.type=='jetpack'):
+                if (self.unlocked and app.selectedJetpack!=self):
+                    app.selectedJetpack=self
+                else:
+                    app.selectedJetpack=None
     def callButtonFunction(self,app):   
         self.buttonFunction(self,app)
 
@@ -750,6 +774,9 @@ def doubleCoinsGadgetToggle(self,app):
         app.coinAdder=2
     else:
         app.coinAdder=1
+
+def jetpackFunction(self,app):
+    pass
 
 def pressInPlayGame(app,mouseX,mouseY):
     if((app.playGameButtonX<=mouseX<=app.playGameButtonX+
