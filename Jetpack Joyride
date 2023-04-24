@@ -25,7 +25,7 @@ def onAppStart(app):
     app.cellBorderWidth=2
     app.board=[([None]*app.cols) for row in range(app.rows)]
     app.steps=0
-    app.zapperList=[zapper(app,7,1,4,5)]
+    app.zapperList=[]
     app.missileList=[]
     app.laserList=[]
     app.playerCx=(app.boardWidth//app.cols)*4
@@ -140,6 +140,8 @@ def onMousePress(app,mouseX,mouseY):
         else:
             for gadgetButton in app.gadgetButtonList:
                 gadgetButton.checkForPress(app,mouseX,mouseY)
+            for gadgetButton in app.gadgetButtonList:
+                gadgetButton.callButtonFunction(app)
 
 def onStep(app):
     if app.playing:
@@ -359,10 +361,6 @@ def redrawAll(app):
     elif app.inMenus:
         drawMenuInterface(app)
         drawProfile(app)
-        drawRect(app.playGameButtonX,app.playGameButtonY,
-        app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
-        for gadgetButton in app.gadgetButtonList:
-            gadgetButton.drawButton(app)
 
 def drawCoinGraphic(app):
     for coinList in app.allCoinsList:
@@ -451,18 +449,32 @@ def drawBackground(app):
         drawImage(app.hologram,0,0,
               width=app.width*2/5,height=app.height)     
         drawLine(app.width*2/5,0,app.width*2/5,app.height,fill='red',lineWidth=5)
-        drawImage(app.coinImage,30,20,width=50,height=50)  
+        drawImage(app.coinImage,30,75,width=50,height=50,align='left')  
 
 def drawMenuInterface(app):
+    drawLine((app.width*2/5)+2,app.height/4,app.width-2,app.height/4,
+             fill='lightGrey',opacity=80,lineWidth=100)
+    drawLine((app.width*2/5)+2,app.height*4/7,app.width-2,app.height*4/7,
+             fill='lightGrey',opacity=80,lineWidth=100)
+    drawRect(app.playGameButtonX,app.playGameButtonY,app.playGameButtonWidth,
+             app.playGameButtonHeight,fill='gold',
+             borderWidth=5,border='black')
+    drawRect((app.width*7/10),40,170,50,fill='lightGrey',
+             borderWidth=5,opacity=80,border='black',align='center')
+    drawRect((app.width*7/10),(app.height/2)-40,180,50,fill='lightGrey',
+             borderWidth=5,opacity=80,border='black',align='center')
+    for gadgetButton in app.gadgetButtonList:
+        gadgetButton.drawButton(app)
     drawMenuLabels(app)
 
 def drawMenuLabels(app):
-    drawLabel('GADGETS',(app.width*3)/4,40,size=30)
-    drawLabel('JETPACKS',(app.width*3)/4,(app.height/2)-40,size=30)
+    drawLabel('GADGETS',(app.width*7)/10,40,size=30,fill='red',bold=True)
+    drawLabel('JETPACKS',(app.width*7)/10,(app.height/2)-40,size=30,fill='red',bold=True)
     drawLabel('PLAY AGAIN',(app.width*9)/10,(app.height*5)/6,
     size=40,bold=True,align='right')
-    drawLabel(f':{app.totalCoins}',80,40,size=40,align='left',fill='gold',bold=True)
-    drawLabel(f'BEST DIST: {app.bestDistance}M',30,90,size=20,align='left',
+    drawLabel(f':{app.totalCoins}',80,70,size=40,align='left',fill='gold',
+              bold=True)
+    drawLabel(f'BEST DIST: {app.bestDistance}M',30,30,size=20,align='left',
               fill='white',bold=True)
 
 def drawObjects(app):
@@ -641,14 +653,6 @@ def drawPlayerHitbox(app):
     drawCircle(app.playerCx,app.playerCy,app.playerRadius,border='black',fill=None)
 
 #buttons
-#def buttonFunction
-#class Button
-#def __init__(self,buttonFunciton)
-#def checkForPress(self,app,mouseX,mouseY):
-    #if in the parameters
-        #call self.buttonFunction(app)
-#app.myButton=(self,buttonFunction)
-
 class gadgetButton:
     def __init__(self,x,y,price,buttonFunction):
         self.x=x
@@ -658,9 +662,8 @@ class gadgetButton:
         self.height=80
         self.buttonFunction=buttonFunction
         self.unlocked=False
-        self.activated=False
     def __eq__(self,other):
-        if isinstance(other,gadgetButton)and self.buttonFunction==other.buttonFunction:
+        if isinstance(other,gadgetButton)and self.x==other.x:
             return True
         else:
             return False
@@ -673,7 +676,8 @@ class gadgetButton:
             buttonBorder='green'
         else:
             buttonBorder='red'
-        drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,border=buttonBorder)
+        drawRect(self.x,self.y,self.width,self.height,fill=buttonFill,
+                 border=buttonBorder,borderWidth=5)
     def checkForPress(self,app,mouseX,mouseY):
         if ((self.x<=mouseX<=self.x+self.width)and
             (self.y<=mouseY<=self.y+self.height)):
@@ -682,20 +686,19 @@ class gadgetButton:
                 app.totalCoins-=self.price
             if (self.unlocked and app.selectedGadget!=self):
                 app.selectedGadget=self
-                self.activated=True
             else:
-                app.selectedGadget=None   
-                self.activated=False
-        self.buttonFunction(app,self.activated)
+                app.selectedGadget=None
+    def callButtonFunction(self,app):   
+        self.buttonFunction(self,app)
 
-def magnetismGadgetToggle(app,activated):
-    if activated:
+def magnetismGadgetToggle(self,app):
+    if self==app.selectedGadget:
         app.coinCollectRadius=app.playerRadius+50
     else:
         app.coinCollectRadius=app.playerRadius
 
-def doubleCoinsGadgetToggle(app,activated):
-    if activated:
+def doubleCoinsGadgetToggle(self,app):
+    if self==app.selectedGadget:
         app.coinAdder=2
     else:
         app.coinAdder=1
