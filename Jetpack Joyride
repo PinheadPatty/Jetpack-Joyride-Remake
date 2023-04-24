@@ -106,8 +106,10 @@ def onAppStart(app):
     ##Screenshots from Jetpack Joyride 'Halfbrick Studios'
     app.backgroundImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/background.png'
     ##menu background
-    ##https://static.wikia.nocookie.net/jetpackjoyride/images/1/11/768E25C7-A707-460D-861C-FD9E2E6040D3.jpeg/revision/latest/scale-to-width-down/700?cb=20201025011227
-    app.menuBackground='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuBackground.jpg'
+    ##data:image/jpeg;base64,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
+    app.menuBackground='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuBackground.png'
+    ##https://static.vecteezy.com/system/resources/previews/008/450/119/non_2x/hologram-podium-futuristic-circle-blue-hud-podium-modern-technology-gaming-vector.jpg
+    app.hologram='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/hologram.jpg'
     ##inGameMusic
     ##https://vgmsite.com/soundtracks/jetpack-joyride/nrledqme/Jetpack%20Joyride.mp3
     inGameMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/inGameMusic.mp3'
@@ -340,6 +342,7 @@ def addObjects(app):
                 addCoinList(app)
 
 def redrawAll(app):
+    drawBackground(app)
     if app.playing:
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=40,fill='red')
@@ -348,15 +351,14 @@ def redrawAll(app):
         drawObjects(app)
         drawLabel(f'{app.distance} M',30,10,size=20,bold=True)
         drawLabel(f'{app.thisGameCoins}',app.width-30,10,size=17,bold=True)
-        #drawBackground(app)
         drawCoinGraphic(app)
         drawZapperGraphic(app)
         drawMissileGraphic(app)
         drawLaserGraphic(app)
         drawCharacterGraphic(app)
     elif app.inMenus:
+        drawMenuInterface(app)
         drawProfile(app)
-        drawMenuLabels(app)
         drawRect(app.playGameButtonX,app.playGameButtonY,
         app.playGameButtonWidth,app.playGameButtonHeight,fill=None,border='black')
         for gadgetButton in app.gadgetButtonList:
@@ -437,18 +439,31 @@ def drawZapperGraphic(app):
                     rotateAngle=angle,width=cellWidth*mult,height=cellHeight*mult)
 
 def drawBackground(app):
-    drawImage(app.backgroundImage,app.backX1,app.backY,width=app.width,
-              height=app.height)
-    drawImage(app.backgroundImage,app.backX2,app.backY,width=app.width,
-              height=app.height)
+    if app.playing:
+        # drawImage(app.backgroundImage,app.backX1,app.backY,width=app.width,
+        #         height=app.height)
+        # drawImage(app.backgroundImage,app.backX2,app.backY,width=app.width,
+        #         height=app.height)
+        pass
+    else:
+        drawImage(app.menuBackground,app.width*2/5,0,
+                  width=app.width*3/5,height=app.height)
+        drawImage(app.hologram,0,0,
+              width=app.width*2/5,height=app.height)     
+        drawLine(app.width*2/5,0,app.width*2/5,app.height,fill='red',lineWidth=5)
+        drawImage(app.coinImage,30,20,width=50,height=50)  
+
+def drawMenuInterface(app):
+    drawMenuLabels(app)
 
 def drawMenuLabels(app):
     drawLabel('GADGETS',(app.width*3)/4,40,size=30)
     drawLabel('JETPACKS',(app.width*3)/4,(app.height/2)-40,size=30)
     drawLabel('PLAY AGAIN',(app.width*9)/10,(app.height*5)/6,
     size=40,bold=True,align='right')
-    drawLabel(f'COINS: {app.totalCoins}',50,40,size=20,align='left')
-    drawLabel(f'BEST DISTANCE: {app.bestDistance}M',50,70,size=20,align='left')
+    drawLabel(f':{app.totalCoins}',80,40,size=40,align='left',fill='gold',bold=True)
+    drawLabel(f'BEST DIST: {app.bestDistance}M',30,90,size=20,align='left',
+              fill='white',bold=True)
 
 def drawObjects(app):
     for zapper in app.zapperList:
@@ -465,8 +480,8 @@ def drawObjects(app):
             coin.drawCoin(app)  
 
 def drawProfile(app):
-    drawImage(app.profile,app.width/7,app.height/2,
-              width=app.width/5,height=app.width/5)        
+    drawImage(app.profile,app.width/8,app.height*1/3,
+              width=app.width/5,height=app.width/5)
 
 
 #Obstacles***
