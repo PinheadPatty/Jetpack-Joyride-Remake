@@ -1054,7 +1054,6 @@ def drawBoard(app):
         for col in range(app.cols):
             color = app.board[row][col]
             drawCell(app, row, col,color)
-print(5)
 
 def main():
     runApp()
