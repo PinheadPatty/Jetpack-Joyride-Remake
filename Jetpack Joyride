@@ -45,10 +45,10 @@ def onAppStart(app):
     ##pathFinder
     ##https://static.wikia.nocookie.net/speed-city/images/c/c6/GreenCircleIMG.png/revision/latest?cb=20190304214856
     app.pathFinderImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/pathFinder.png'
-    app.magnetism=button('gadget',(app.width/2)-30,70,50,app.magnetImage,magnetismGadgetToggle)
-    app.doubleCoins=button('gadget',(app.width/2)+(app.width/8)-30,70,100,app.doubleCoinsImage,doubleCoinsGadgetToggle)
-    app.gravityBelt=button('gadget',(app.width/2)+(app.width/4)-30,70,150,app.gravityBeltImage,gravityBeltGadgetToggle)
-    app.pathFinder=button('gadget',(app.width/2)+(app.width*3/8)-30,70,150,app.pathFinderImage,pathFinderGadgetToggle)
+    app.magnetism=button('gadget',(app.width/2)-30,70,0,app.magnetImage,magnetismGadgetToggle)
+    app.doubleCoins=button('gadget',(app.width/2)+(app.width/8)-30,70,0,app.doubleCoinsImage,doubleCoinsGadgetToggle)
+    app.gravityBelt=button('gadget',(app.width/2)+(app.width/4)-30,70,0,app.gravityBeltImage,gravityBeltGadgetToggle)
+    app.pathFinder=button('gadget',(app.width/2)+(app.width*3/8)-30,70,0,app.pathFinderImage,pathFinderGadgetToggle)
     app.selectedGadget=None
     ##default
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/c/c8/Machine_Gun_Jetpack_%28Icon%29.jpg/revision/latest?cb=20210326125315
@@ -78,6 +78,10 @@ def onAppStart(app):
                     app.pathFinder,app.balloonJetpack,app.teddyJetpack,
                     app.rocketJetpack,app.partyJetpack]
     app.gBelt=False
+    app.pathList=[]
+    app.tempPathList=[]
+    app.pathIndex=0
+    app.path=False
     app.dy=0
     app.d2y=2
     app.boosting=False
@@ -202,6 +206,7 @@ def onMousePress(app,mouseX,mouseY):
 
 def onStep(app):
     if app.playing:
+        cellWidth,cellHeight=getCellSize(app)
         #app.menuMusic.pause()
         #app.inGameMusic.play(loop=True)
         if app.gameOver:
@@ -213,6 +218,15 @@ def onStep(app):
                     app.stepsPerSecond/=1.3
             else:
                 app.playing=False
+        if app.path:
+            pass
+        if app.steps%9==0:
+            app.pathIndex=0
+            app.tempPathList=pathFind(app)
+        if app.tempPathList!=[]:
+            app.pathList.append(pathCoordinate(app.width-
+                cellWidth*17/2,app.tempPathList[app.pathIndex]))
+        app.pathIndex+=1
         app.player.y=app.playerCy
         app.player.top=app.playerCy-(app.player.width/2)
         app.player.bottom=app.playerCy+(app.player.width/2)
@@ -224,6 +238,7 @@ def onStep(app):
         moveObjects(app)
         #app.playingScreen to the left and loop image
         addObjects(app)
+        movePath(app)
         app.distance+=1
         app.steps+=1
         if app.steps%50==0:
@@ -241,6 +256,9 @@ def onStep(app):
         app.missileList=[]
         app.laserList=[]
         app.coinList=[]
+        app.pathList=[]
+        app.tempPathlist=[]
+        app.pathIndex=0
         app.board=[([None]*app.cols) for row in range(app.rows)]
         app.zapped=False
         app.burnt=False
@@ -249,6 +267,81 @@ def onStep(app):
         app.lasersOn=False
         app.coinsOn=True
         app.inMenus=True
+
+class pathCoordinate:
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
+
+def pathFind(app):
+    cellWidth,cellHeight=getCellSize(app)
+    return findPath(app,app.height/2,app.width-
+                (cellWidth*17/2),[])
+
+##will pathFind x steps into the future    
+def findPath(app,possibleY,x,L):
+    cellWidth,cellHeight=getCellSize(app)
+    if len(L)==9:
+        return L
+    else:
+        for direction in range(-1,2):
+            if direction==-1:
+                direction=0
+            elif direction==0:
+                direction=-1
+            if((possibleY+(cellHeight*direction)>app.boardTop) and
+               (possibleY+(cellHeight*direction)<app.boardTop+app.boardHeight)
+               and (doesNotCollide(app,possibleY+(cellHeight*direction),x,L))):
+                possibleY+=(cellHeight*direction)
+                L.append(possibleY)
+                x+=cellWidth
+                solution=findPath(app,possibleY,x,L)
+                if solution!=[]:
+                    return solution
+                x-=cellWidth
+                possibleY-=(cellHeight*direction)
+                L.pop()
+        return []
+
+def doesNotCollide(app,possibleY,x,L):
+    cellWidth,cellHeight=getCellSize(app)
+    row,col=getCell(app,x,possibleY)
+    for row in range(app.rows):
+        for col in range(app.cols):
+            cellLeft,cellTop=getCellLeftTop(app,row,col)
+            if (app.board[row][col]!=None):
+                zapperPoints=[(cellLeft,cellTop),
+                (cellLeft+cellWidth,cellTop),(cellLeft,cellTop+cellHeight),
+                (cellLeft+cellWidth,cellTop+cellHeight)]
+                for (xZ,yZ) in zapperPoints:
+                    if ((x-(app.player.width/2)<=xZ<=x+(app.player.width/2)) and
+                        (possibleY-(app.player.height/2)<=yZ<=
+                         possibleY+(app.player.height/2))):
+                        return False
+    for missile in app.missileList:
+        if (distance(x,possibleY,missile.posX,missile.height)<
+            app.playerRadius+missile.radius+15):
+            return False
+    for laser in app.laserList:
+        height=laser.height
+        moving=laser.moving
+        for i in range (len(L)+1):
+            height+=moving*15
+            if ((height+cellHeight>app.boardTop+app.height)or
+                (height<app.boardTop)):
+                moving=-moving
+        if (((abs(height-possibleY)<=app.playerRadius)or
+            (abs(possibleY-(height+cellHeight))<=app.playerRadius))
+            and(laser.activated)):
+            return False
+    return True
+
+def movePath(app):
+    cellWidth,cellHeight=getCellSize(app)
+    for pathCoordinate in app.pathList:
+        pathCoordinate.x-=cellWidth
+        if pathCoordinate.x<0:
+            app.pathList.pop(0)
 
 def cycleCharacterGraphic(app):
     if not app.gameOver:
@@ -275,20 +368,17 @@ def cycleCharacterGraphic(app):
 def checkCollisions(app):
     cellWidth,cellHeight=getCellSize(app)
     for row in range(app.rows):
-            for col in range(app.cols):
-                cellLeft,cellTop=getCellLeftTop(app,row,col)
-                if (app.board[row][col]!=None):
-                    zapperPoints=[(cellLeft,cellTop),
-                    (cellLeft+cellWidth,cellTop),(cellLeft,cellTop+cellHeight),
-                    (cellLeft+cellWidth,cellTop+cellHeight)]
-                    for (x,y) in zapperPoints:
-                        if ((app.player.left<=x<=app.player.right) and
-                            (app.player.top<=y<=app.player.bottom)):
-                            app.gameOver=True
-                            app.zapped=True    
-                    # (distance(app.playerCx,app.playerCy,
-                    # cellLeft+(0.5*cellWidth),cellTop+(0.5*cellHeight))<
-                    # app.playerRadius+(0.5*cellWidth))):
+        for col in range(app.cols):
+            cellLeft,cellTop=getCellLeftTop(app,row,col)
+            if (app.board[row][col]!=None):
+                zapperPoints=[(cellLeft,cellTop),
+                (cellLeft+cellWidth,cellTop),(cellLeft,cellTop+cellHeight),
+                (cellLeft+cellWidth,cellTop+cellHeight)]
+                for (x,y) in zapperPoints:
+                    if ((app.player.left<=x<=app.player.right) and
+                        (app.player.top<=y<=app.player.bottom)):
+                        app.gameOver=True
+                        app.zapped=True    
     for missile in app.missileList:
         if (distance(app.playerCx,app.playerCy,missile.posX,missile.height)<
             app.playerRadius+missile.radius):
@@ -344,12 +434,6 @@ def moveBackground(app):
         if light.x<=-10:
             light.x=(app.width*2)-10
         light.x-=cellWidth
-    # app.backX1-=cellWidth
-    # app.backX2-=cellWidth
-    # if app.backX1<=-app.width:
-    #     app.backX1=app.width
-    # if app.backX2<=-app.width:
-    #     app.backX2=app.width
 
 def moveObjects(app):
     cellWidth,cellHeight=getCellSize(app)
@@ -398,7 +482,7 @@ def moveObjects(app):
 
 def addObjects(app):
     #ADDED div by app.stepsPerSecond so more generate as game goes on
-    if app.steps>1:
+    if app.steps>=50:
         if app.steps%500==0:
             app.tempSteps=0
             app.lasersOn=(not app.lasersOn) 
@@ -434,6 +518,7 @@ def addObjects(app):
 def redrawAll(app):
     drawBackground(app)
     if app.playing:
+        cellWidth, cellHeight = getCellSize(app)
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=50,fill='red',
                       border='black',bold=True)
@@ -444,17 +529,23 @@ def redrawAll(app):
         if app.selectedGadget!=None:
             drawImage(app.selectedGadget.image,(app.width/2),20,
                     width=app.width/18,height=app.width/18,align='center')
-        # drawBoard(app)
-        # drawPlayerHitbox(app)
+        drawBoard(app)
+        #drawPlayerHitbox(app)
         drawObjects(app)
         drawCoinGraphic(app)
         drawZapperGraphic(app)
         drawMissileGraphic(app)
         drawLaserGraphic(app)
+        drawPath(app)
         drawCharacterGraphic(app)
     elif app.inMenus:
         drawMenuInterface(app)
         drawProfile(app)
+
+def drawPath(app):
+    for pathCoordinate in app.pathList:
+        drawCircle(pathCoordinate.x,pathCoordinate.y,10,opacity=80,
+                   fill=rgb(30,230,5),border='white')
 
 def drawCoinGraphic(app):
     for coinList in app.allCoinsList:
@@ -874,9 +965,9 @@ def gravityBeltGadgetToggle(self,app):
 
 def pathFinderGadgetToggle(self,app):
     if self==app.selectedGadget:
-        pass
+        app.path=True
     else:
-        pass
+        app.path=False
 
 def jetpackFunction(self,app):
     pass
