@@ -6,9 +6,10 @@ def onAppStart(app):
     app.BestDistance=0
     app.distance=0
     app.bestDistance=0
-    app.totalCoins=0
+    app.totalCoins=1000
     app.coinAdder=1
     app.thisGameCoins=0
+    app.firstStart=True
     app.gameOver=False
     app.inMenus=False
     app.playing=True
@@ -28,9 +29,9 @@ def onAppStart(app):
     app.zapperList=[]
     app.missileList=[]
     app.laserList=[]
-    app.playerCx=(app.boardWidth//app.cols)*4
-    app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
+    app.playerCx=-app.playerRadius-3
+    app.playerCy=app.boardTop+app.boardHeight-(app.playerRadius)
     app.player=player(app)
     ##magnet
     ##https://www.freeiconspng.com/img/45627
@@ -45,10 +46,10 @@ def onAppStart(app):
     ##pathFinder
     ##https://static.wikia.nocookie.net/speed-city/images/c/c6/GreenCircleIMG.png/revision/latest?cb=20190304214856
     app.pathFinderImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/pathFinder.png'
-    app.magnetism=button('gadget',(app.width/2)-30,70,0,app.magnetImage,magnetismGadgetToggle)
-    app.doubleCoins=button('gadget',(app.width/2)+(app.width/8)-30,70,0,app.doubleCoinsImage,doubleCoinsGadgetToggle)
-    app.gravityBelt=button('gadget',(app.width/2)+(app.width/4)-30,70,0,app.gravityBeltImage,gravityBeltGadgetToggle)
-    app.pathFinder=button('gadget',(app.width/2)+(app.width*3/8)-30,70,0,app.pathFinderImage,pathFinderGadgetToggle)
+    app.magnetism=button('gadget',(app.width/2)-30,70,50,app.magnetImage,magnetismGadgetToggle)
+    app.doubleCoins=button('gadget',(app.width/2)+(app.width/8)-30,70,100,app.doubleCoinsImage,doubleCoinsGadgetToggle)
+    app.gravityBelt=button('gadget',(app.width/2)+(app.width/4)-30,70,150,app.gravityBeltImage,gravityBeltGadgetToggle)
+    app.pathFinder=button('gadget',(app.width/2)+(app.width*3/8)-30,70,200,app.pathFinderImage,pathFinderGadgetToggle)
     app.selectedGadget=None
     ##default
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/c/c8/Machine_Gun_Jetpack_%28Icon%29.jpg/revision/latest?cb=20210326125315
@@ -65,13 +66,13 @@ def onAppStart(app):
     ##angel
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a8/Party_Jetpack_%28icon%29.jpg/revision/latest?cb=20210326132930
     app.partyJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/party.png'
-    app.balloonJetpack=button('jetpack',(app.width/2)-30,220,0,
+    app.balloonJetpack=button('jetpack',(app.width/2)-30,220,50,
                               app.balloonJetpackImage,jetpackFunction)
-    app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8)-30,220,0,
+    app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8)-30,220,100,
                             app.teddyJetpackImage,jetpackFunction)
-    app.rocketJetpack=button('jetpack',(app.width/2)+(app.width/4)-30,220,0,
+    app.rocketJetpack=button('jetpack',(app.width/2)+(app.width/4)-30,220,150,
                              app.rocketJetpackImage,jetpackFunction)
-    app.partyJetpack=button('jetpack',(app.width/2)+(app.width*3/8)-30,220,0,
+    app.partyJetpack=button('jetpack',(app.width/2)+(app.width*3/8)-30,220,200,
                              app.partyJetpackImage,jetpackFunction)
     app.selectedJetpack=None
     app.buttonList=[app.magnetism,app.doubleCoins,app.gravityBelt,
@@ -87,7 +88,7 @@ def onAppStart(app):
     app.boosting=False
     app.grounded=True
     app.ceilinged=False
-    app.coinRadius=10
+    app.coinRadius=12
     app.coinCollectRadius=app.playerRadius
     app.allCoinsList=[]
     app.gameOver=False
@@ -108,10 +109,11 @@ def onAppStart(app):
     app.columns=[column(0),column(app.width/2),column(app.width)]
     app.lights=[light((app.width/2)-70),light(((app.width/2)-70)+app.width)]
     app.tempSteps=0
+    app.nextPossibleY=app.height/2
     ##IMAGES
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
     ##https://express.adobe.com/sp/design/post/urn:aaid:sc:VA6C2:896e421d-5470-4fd2-b5d6-cb0ad68cb17a?workflow=quicktask&qId=remove-background&actionLocation=seo&autoDownload=true
-    ##(adobeExpress to remove background)
+    ##(adobeExpress to remove background for all images)
     ##BARRY SPRITESHEET
     app.characterSpriteSheet='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/B5BE4421-A864-45FB-9963-808F7BBB49FD_adobe_express.png'
     app.characterImage1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage1.png'
@@ -151,7 +153,7 @@ def onAppStart(app):
     ##background
     ##in game background was drawn based off of the original game by 'Halfbrick Studios'
     ##menu background
-    ##data:image/jpeg;base64,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
+    ##https://static.tvtropes.org/pmwiki/pub/images/lrscientists.png
     app.menuBackground='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuBackground.png'
     ##https://static.vecteezy.com/system/resources/previews/008/450/119/non_2x/hologram-podium-futuristic-circle-blue-hud-podium-modern-technology-gaming-vector.jpg
     app.hologram='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/hologram.jpg'
@@ -203,49 +205,70 @@ def onMousePress(app,mouseX,mouseY):
                 button.checkForPress(app,mouseX,mouseY)
             for button in app.buttonList:
                 button.callButtonFunction(app)
+    else:
+        if app.firstStart:
+            app.firstStart=False
 
 def onStep(app):
     if app.playing:
-        cellWidth,cellHeight=getCellSize(app)
-        #app.menuMusic.pause()
-        #app.inGameMusic.play(loop=True)
-        if app.gameOver:
-            app.boosting=False
-            #app.inGameMusic.pause()
-            #app.menuMusic.play(loop=True)
-            if (app.stepsPerSecond>1):
-                if app.grounded:
-                    app.stepsPerSecond/=1.3
+        if app.firstStart:
+            pass
+        else:
+            if app.playerCx<(app.boardWidth//app.cols)*4:
+                app.playerCx+=3
+                app.player.x+=3
+                app.player.left=app.player.x-(app.player.width/2)
+                app.player.right=app.player.x+(app.player.width/2)
             else:
-                app.playing=False
-        if app.path:
-            if app.steps%13==0:
-                app.pathIndex=0
-                app.tempPathList=pathFind(app)
-            if app.tempPathList!=[]:
-                app.pathList.append(pathCoordinate(app.width-
-                    cellWidth*25/2,app.tempPathList[app.pathIndex]))
-            app.pathIndex+=1
-        app.player.y=app.playerCy
-        app.player.top=app.playerCy-(app.player.width/2)
-        app.player.bottom=app.playerCy+(app.player.width/2)
-        cycleCharacterGraphic(app)
-        checkCollisions(app)
-        keepPlayerInBounds(app)
-        moveBackground(app)
-        movePlayer(app)
-        moveObjects(app)
-        #app.playingScreen to the left and loop image
-        addObjects(app)
-        movePath(app)
-        app.distance+=1
-        app.steps+=1
-        if app.steps%50==0:
-            app.stepsPerSecond+=0.1
+                app.playerCx=(app.boardWidth//app.cols)*4
+                app.player.x=app.playerCx
+                app.player.left=app.player.x-(app.player.width/2)
+                app.player.right=app.player.x+(app.player.width/2)
+            cellWidth,cellHeight=getCellSize(app)
+            #app.menuMusic.pause()
+            #app.inGameMusic.play(loop=True)
+            if app.gameOver:
+                app.boosting=False
+                #app.inGameMusic.pause()
+                #app.menuMusic.play(loop=True)
+                if (app.stepsPerSecond>1):
+                    if app.grounded:
+                        app.stepsPerSecond/=1.3
+                else:
+                    app.playing=False
+            if app.path:
+                if app.steps%11==0:
+                    app.pathIndex=0
+                    app.tempPathList=pathFind(app)
+                if app.tempPathList==[]:
+                    app.nextPossibleY=app.height/2
+                else:
+                    app.nextPossibleY=app.tempPathList[10]
+                    app.pathList.append(pathCoordinate(app.width-
+                        cellWidth*21/2,app.tempPathList[app.pathIndex]))
+                app.pathIndex+=1
+            app.player.y=app.playerCy
+            app.player.top=app.playerCy-(app.player.width/2)
+            app.player.bottom=app.playerCy+(app.player.width/2)
+            cycleCharacterGraphic(app)
+            checkCollisions(app)
+            keepPlayerInBounds(app)
+            moveBackground(app)
+            movePlayer(app)
+            moveObjects(app)
+            addObjects(app)
+            movePath(app)
+            app.distance+=1
+            app.steps+=1
+            if app.steps%50==0:
+                app.stepsPerSecond+=0.1
     else:
         app.stepsPerSecond=10
         if app.distance>=app.bestDistance:
             app.bestDistance=app.distance
+        app.playerCx=-app.playerRadius-3
+        app.playerCy=app.boardTop+app.boardHeight-(app.playerRadius)
+        app.nextPossibleY=app.height/2
         app.distance=0
         app.steps=0
         app.tempSteps=0
@@ -274,13 +297,13 @@ class pathCoordinate:
 
 def pathFind(app):
     cellWidth,cellHeight=getCellSize(app)
-    return findPath(app,app.height/2,app.width-
-                (cellWidth*25/2),[])
+    return findPath(app,app.nextPossibleY,app.width-
+                (cellWidth*19/2),[])
 
-##will pathFind x steps into the future    
+##will pathFind L steps into the future    
 def findPath(app,possibleY,x,L):
     cellWidth,cellHeight=getCellSize(app)
-    if len(L)==13:
+    if len(L)==11:
         return L
     else:
         for direction in range(-1,2):
@@ -319,25 +342,25 @@ def doesNotCollide(app,possibleY,x,L):
                         return False
     for missile in app.missileList:
         if (distance(x,possibleY,missile.posX,missile.height)<
-            app.playerRadius+missile.radius+15):
+            app.playerRadius+missile.radius+25):
             return False
     steps=app.steps
     for laser in app.laserList:
         height=laser.height
         moving=laser.moving
         for i in range (len(L)+1):
-            height+=moving*8
+            height+=moving*4
             if ((height+cellHeight>app.boardTop+app.height)or
                 (height<app.boardTop)):
                 moving=-moving
         if (steps+len(L)-laser.time)>20:
             activated=True
-        elif(steps+len(L)-laser.time)>60:
+        elif(steps+len(L)-laser.time)>35:
             activated=False
         else:
             activated=laser.activated
-        if (((abs(height-possibleY)<=app.playerRadius)or
-            (abs(possibleY-(height+cellHeight))<=app.playerRadius))
+        if ((((abs(height-possibleY)<=app.playerRadius+40)and moving==-1)or
+            ((abs(possibleY-(height+cellHeight))<=app.playerRadius+40)and moving==1))
             and activated):
             return False
     return True
@@ -524,6 +547,8 @@ def addObjects(app):
 def redrawAll(app):
     drawBackground(app)
     if app.playing:
+        if app.firstStart:
+            drawFirstStart(app)
         cellWidth, cellHeight = getCellSize(app)
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=50,fill='red',
@@ -547,6 +572,10 @@ def redrawAll(app):
     elif app.inMenus:
         drawMenuInterface(app)
         drawProfile(app)
+
+def drawFirstStart(app):
+    drawLabel('CLICK TO START',app.width/2,140,size=20,fill='white',bold=True)
+    drawLabel('PRESS SPACE TO BOOST',app.width/2,170,size=20,fill='white',bold=True)
 
 def drawPath(app):
     for pathCoordinate in app.pathList:
@@ -806,7 +835,7 @@ class zapper:
                 col+=1
 
 def addZapper(app):
-    randPixels=random.randrange(3,((app.rows)//2)+1)
+    randPixels=random.randrange(3,((app.rows)//2))
     randAngle=random.randrange(4)
     randRowHeight=random.randrange(app.rows)
     initialCol=((app.cols*3)//4)
@@ -1025,6 +1054,7 @@ def drawBoard(app):
         for col in range(app.cols):
             color = app.board[row][col]
             drawCell(app, row, col,color)
+print(5)
 
 def main():
     runApp()
