@@ -75,7 +75,7 @@ def onAppStart(app):
                              app.partyJetpackImage,jetpackFunction)
     app.selectedJetpack=None
     app.buttonList=[app.magnetism,app.doubleCoins,app.gravityBelt,
-                    app.balloonJetpack,app.teddyJetpack,
+                    app.pathFinder,app.balloonJetpack,app.teddyJetpack,
                     app.rocketJetpack,app.partyJetpack]
     app.gBelt=False
     app.dy=0
