@@ -42,9 +42,13 @@ def onAppStart(app):
     ##gravityBelt
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a2/GravityBelt.png/revision/latest?cb=20120428052909
     app.gravityBeltImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/gravityBelt.png'
+    ##pathFinder
+    ##https://static.wikia.nocookie.net/speed-city/images/c/c6/GreenCircleIMG.png/revision/latest?cb=20190304214856
+    app.pathFinderImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/pathFinder.png'
     app.magnetism=button('gadget',(app.width/2)-30,70,50,app.magnetImage,magnetismGadgetToggle)
     app.doubleCoins=button('gadget',(app.width/2)+(app.width/8)-30,70,100,app.doubleCoinsImage,doubleCoinsGadgetToggle)
     app.gravityBelt=button('gadget',(app.width/2)+(app.width/4)-30,70,150,app.gravityBeltImage,gravityBeltGadgetToggle)
+    app.pathFinder=button('gadget',(app.width/2)+(app.width*3/8)-30,70,150,app.pathFinderImage,pathFinderGadgetToggle)
     app.selectedGadget=None
     ##default
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/c/c8/Machine_Gun_Jetpack_%28Icon%29.jpg/revision/latest?cb=20210326125315
@@ -867,6 +871,12 @@ def gravityBeltGadgetToggle(self,app):
         app.gBelt=True
     else:
         app.gBelt=False
+
+def pathFinderGadgetToggle(self,app):
+    if self==app.selectedGadget:
+        pass
+    else:
+        pass
 
 def jetpackFunction(self,app):
     pass
