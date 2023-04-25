@@ -31,6 +31,7 @@ def onAppStart(app):
     app.playerCx=(app.boardWidth//app.cols)*4
     app.playerCy=app.boardTop+(app.boardHeight-(app.boardHeight//app.rows))
     app.playerRadius=(((app.boardHeight//app.rows)*2)//3)
+    app.player=player(app)
     ##magnet
     ##https://www.freeiconspng.com/img/45627
     app.magnetImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/magnet.png'
@@ -38,8 +39,12 @@ def onAppStart(app):
     ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
     app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
     app.doubleCoinsImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/doubleCoin.png'
+    ##gravityBelt
+    ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a2/GravityBelt.png/revision/latest?cb=20120428052909
+    app.gravityBeltImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/gravityBelt.png'
     app.magnetism=button('gadget',(app.width/2),70,0,app.magnetImage,magnetismGadgetToggle)
     app.doubleCoins=button('gadget',(app.width/2)+(app.width/8),70,0,app.doubleCoinsImage,doubleCoinsGadgetToggle)
+    app.gravityBelt=button('gadget',(app.width/2)+(app.width/4),70,0,app.gravityBeltImage,gravityBeltGadgetToggle)
     app.selectedGadget=None
     ##default
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/c/c8/Machine_Gun_Jetpack_%28Icon%29.jpg/revision/latest?cb=20210326125315
@@ -54,7 +59,8 @@ def onAppStart(app):
     app.balloonJetpack=button('jetpack',(app.width/2),220,0,app.balloonJetpackImage,jetpackFunction)
     app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8),220,0,app.teddyJetpackImage,jetpackFunction)
     app.selectedJetpack=None
-    app.buttonList=[app.magnetism,app.doubleCoins,app.balloonJetpack,app.teddyJetpack]
+    app.buttonList=[app.magnetism,app.doubleCoins,app.gravityBelt,app.balloonJetpack,app.teddyJetpack]
+    app.gBelt=False
     app.dy=0
     app.d2y=2
     app.boosting=False
@@ -80,6 +86,7 @@ def onAppStart(app):
     app.background=rgb(63,76,113)
     app.columns=[column(0),column(app.width/2),column(app.width)]
     app.lights=[light((app.width/2)-60),light(((app.width/2)-60)+app.width)]
+    app.tempSteps=0
     ##IMAGES
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/0/01/BarryFullSpriteSheet.png/revision/latest/scale-to-width-down/250?cb=20210603110718
     ##https://express.adobe.com/sp/design/post/urn:aaid:sc:VA6C2:896e421d-5470-4fd2-b5d6-cb0ad68cb17a?workflow=quicktask&qId=remove-background&actionLocation=seo&autoDownload=true
@@ -137,17 +144,33 @@ def onAppStart(app):
     menuMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuMusic.mp3'
     #app.menuMusic=Sound(app.menuMusic)
 
+class player:
+    def __init__(self,app):
+        self.x=app.playerCx
+        self.y=app.playerCy
+        self.width=app.playerRadius*2-5
+        self.height=app.playerRadius*2-5
+        self.left=self.x-(self.width/2)
+        self.right=self.x+(self.width/2)
+        self.top=self.y-(self.height/2)
+        self.bottom=self.y+(self.height/2)
+
 def onKeyPress(app,key):
     if app.playing and not app.gameOver:
-        if key=='space':
-            app.grounded=False
-            app.boosting=True
+        if not app.gBelt:
+            if key=='space':
+                app.grounded=False
+                app.boosting=True
+        else:
+            if key=='space':
+                app.boosting=not app.boosting
 
 def onKeyRelease(app,key):
     if app.playing and not app.gameOver:
-        if key=='space':
-            app.ceilinged=False
-            app.boosting=False
+        if not app.gBelt:
+            if key=='space':
+                app.ceilinged=False
+                app.boosting=False
 
 def onMousePress(app,mouseX,mouseY):
     if app.inMenus:
@@ -174,8 +197,9 @@ def onStep(app):
                     app.stepsPerSecond/=1.3
             else:
                 app.playing=False
-        if app.playerCy!=(app.boardTop+app.boardHeight-(app.playerRadius)):
-            app.grounded=False
+        app.player.y=app.playerCy
+        app.player.top=app.playerCy-(app.player.width/2)
+        app.player.bottom=app.playerCy+(app.player.width/2)
         cycleCharacterGraphic(app)
         checkCollisions(app)
         keepPlayerInBounds(app)
@@ -236,12 +260,18 @@ def checkCollisions(app):
     for row in range(app.rows):
             for col in range(app.cols):
                 cellLeft,cellTop=getCellLeftTop(app,row,col)
-                if ((app.board[row][col]!=None) and 
-                    (distance(app.playerCx,app.playerCy,
-                    cellLeft+(0.5*cellWidth),cellTop+(0.5*cellHeight))<
-                    app.playerRadius+(0.5*cellWidth))):
-                    app.gameOver=True
-                    app.zapped=True
+                if (app.board[row][col]!=None):
+                    zapperPoints=[(cellLeft,cellTop),
+                    (cellLeft+cellWidth,cellTop),(cellLeft,cellTop+cellHeight),
+                    (cellLeft+cellWidth,cellTop+cellHeight)]
+                    for (x,y) in zapperPoints:
+                        if ((app.player.left<=x<=app.player.right) and
+                            (app.player.top<=y<=app.player.bottom)):
+                            app.gameOver=True
+                            app.zapped=True    
+                    # (distance(app.playerCx,app.playerCy,
+                    # cellLeft+(0.5*cellWidth),cellTop+(0.5*cellHeight))<
+                    # app.playerRadius+(0.5*cellWidth))):
     for missile in app.missileList:
         if (distance(app.playerCx,app.playerCy,missile.posX,missile.height)<
             app.playerRadius+missile.radius):
@@ -269,8 +299,15 @@ def keepPlayerInBounds(app):
         app.dy=0
         app.playerCy=app.boardTop+app.playerRadius
         app.ceilinged=True
-
+    else:
+        if app.playerCy!=(app.boardTop+app.boardHeight-(app.playerRadius)):
+            app.grounded=False
+        if app.playerCy!=(app.boardTop+app.playerRadius):
+            app.ceilinged=False
+            
 def movePlayer(app):
+    print('boost',app.boosting)
+    print('ground',app.grounded)
     if app.boosting:
         if ((not app.ceilinged)and(app.dy>-30)):
             app.dy-=app.d2y
@@ -278,6 +315,9 @@ def movePlayer(app):
         if ((not app.grounded)and(app.dy<30)):
             app.dy+=app.d2y
     app.playerCy+=app.dy
+    app.player.y=app.playerCy
+    app.player.top+=app.dy
+    app.player.bottom+=app.dy
 
 def moveBackground(app):
     cellWidth,cellHeight=getCellSize(app)
@@ -345,6 +385,7 @@ def addObjects(app):
     #ADDED div by app.stepsPerSecond so more generate as game goes on
     if app.steps>1:
         if app.steps%500==0:
+            app.tempSteps=0
             app.lasersOn=(not app.lasersOn) 
             addLaser(app)
         else:
@@ -354,23 +395,24 @@ def addObjects(app):
                 else:
                     app.zappersOn=True
         if app.lasersOn:
+            app.tempSteps+=1
             app.zappersOn=False
             app.missilesOn=False
-            if (app.steps%(1000//app.stepsPerSecond)==0):
+            if (app.tempSteps%(1000//app.stepsPerSecond)==0):
                 addLaser(app)
         else:
-            if app.steps%1000!=0:
-                if app.zappersOn:
-                    if (app.steps%(500//app.stepsPerSecond)==0 and 
-                        app.laserList==[]):
-                        addZapper(app)
-                    if (app.steps%(1000//app.stepsPerSecond)==0 and 
-                        app.laserList==[]):
-                        addMissile(app)
-                else:
-                    if (app.steps%(200//app.stepsPerSecond)==0 and 
-                        app.laserList==[]):
-                        addMissile(app)
+            app.tempSteps+=1
+            if app.zappersOn:
+                if (app.tempSteps%(500//app.stepsPerSecond)==0 and 
+                    app.laserList==[] and app.tempSteps<=450):
+                    addZapper(app)
+                if (app.tempSteps%(1000//app.stepsPerSecond)==0 and 
+                    app.laserList==[] and app.tempSteps<=450):
+                    addMissile(app)
+            else:
+                if (app.tempSteps%(200//app.stepsPerSecond)==0 and 
+                    app.laserList==[] and app.tempSteps<=450):
+                    addMissile(app)
         if app.coinsOn:
             if app.steps%50==0:
                 addCoinList(app)
@@ -387,8 +429,8 @@ def redrawAll(app):
         if app.selectedGadget!=None:
             drawImage(app.selectedGadget.image,(app.width/2),20,
                     width=app.width/18,height=app.width/18,align='center')
-        #drawBoard(app)
-        #drawPlayerHitbox(app)
+        drawBoard(app)
+        drawPlayerHitbox(app)
         drawObjects(app)
         drawCoinGraphic(app)
         drawZapperGraphic(app)
@@ -686,7 +728,6 @@ class laser:
         self.height=height
         self.moving=moving
         self.time=time
-        self.topLeft=()
         self.activated=False
     def drawLaser(self,app):
         cellHeight=app.boardHeight//app.rows
@@ -699,10 +740,15 @@ class laser:
 def addLaser(app):
     cellHeight=app.boardHeight//app.rows
     randomHeight=(random.randrange(app.rows)*cellHeight)+app.boardTop
-    #change this to make it less frequent for moving lasers
     randomDirection=random.randrange(2)
     if randomDirection==0:
         randomDirection=-1
+    # for laser in app.laserList:
+    #     if ((laser.height-cellHeight<=randomHeight and 
+    #          randomHeight<=laser.height)or
+    #          (laser.height+(2*cellHeight)>=randomHeight and
+    #           randomHeight>=laser.height)):
+    #         addLaser(app)
     app.laserList.append(laser(randomHeight,app.steps,randomDirection))
 
 ##coins
@@ -733,7 +779,12 @@ def addCoinList(app):
 ##player
 def drawPlayerHitbox(app):
     drawCircle(app.playerCx,app.playerCy,app.playerRadius,border='black',fill=None)
-
+    drawRect(app.player.x,app.player.y,app.player.width,app.player.height,
+             border='red',fill=None,align='center')
+    drawCircle(app.player.x,app.player.top,3)
+    drawCircle(app.player.x,app.player.bottom,3)
+    drawCircle(app.player.left,app.player.y,3)
+    drawCircle(app.player.right,app.player.y,3)
 #buttons
 class button:
     def __init__(self,type,x,y,price,image,buttonFunction):
@@ -802,6 +853,12 @@ def doubleCoinsGadgetToggle(self,app):
         app.coinAdder=2
     else:
         app.coinAdder=1
+
+def gravityBeltGadgetToggle(self,app):
+    if self==app.selectedGadget:
+        app.gBelt=True
+    else:
+        app.gBelt=False
 
 def jetpackFunction(self,app):
     pass
