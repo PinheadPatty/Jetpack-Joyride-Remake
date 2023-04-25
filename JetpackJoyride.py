@@ -87,7 +87,7 @@ def onAppStart(app):
     app.boosting=False
     app.grounded=True
     app.ceilinged=False
-    app.coinRadius=10
+    app.coinRadius=12
     app.coinCollectRadius=app.playerRadius
     app.allCoinsList=[]
     app.gameOver=False
