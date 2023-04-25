@@ -42,9 +42,9 @@ def onAppStart(app):
     ##gravityBelt
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a2/GravityBelt.png/revision/latest?cb=20120428052909
     app.gravityBeltImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/gravityBelt.png'
-    app.magnetism=button('gadget',(app.width/2),70,0,app.magnetImage,magnetismGadgetToggle)
-    app.doubleCoins=button('gadget',(app.width/2)+(app.width/8),70,0,app.doubleCoinsImage,doubleCoinsGadgetToggle)
-    app.gravityBelt=button('gadget',(app.width/2)+(app.width/4),70,0,app.gravityBeltImage,gravityBeltGadgetToggle)
+    app.magnetism=button('gadget',(app.width/2)-30,70,50,app.magnetImage,magnetismGadgetToggle)
+    app.doubleCoins=button('gadget',(app.width/2)+(app.width/8)-30,70,100,app.doubleCoinsImage,doubleCoinsGadgetToggle)
+    app.gravityBelt=button('gadget',(app.width/2)+(app.width/4)-30,70,150,app.gravityBeltImage,gravityBeltGadgetToggle)
     app.selectedGadget=None
     ##default
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/c/c8/Machine_Gun_Jetpack_%28Icon%29.jpg/revision/latest?cb=20210326125315
@@ -61,13 +61,13 @@ def onAppStart(app):
     ##angel
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a8/Party_Jetpack_%28icon%29.jpg/revision/latest?cb=20210326132930
     app.partyJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/party.png'
-    app.balloonJetpack=button('jetpack',(app.width/2)-30,220,0,
+    app.balloonJetpack=button('jetpack',(app.width/2)-30,220,50,
                               app.balloonJetpackImage,jetpackFunction)
-    app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8)-30,220,0,
+    app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8)-30,220,100,
                             app.teddyJetpackImage,jetpackFunction)
-    app.rocketJetpack=button('jetpack',(app.width/2)+(app.width/4)-30,220,0,
+    app.rocketJetpack=button('jetpack',(app.width/2)+(app.width/4)-30,220,150,
                              app.rocketJetpackImage,jetpackFunction)
-    app.partyJetpack=button('jetpack',(app.width/2)+(app.width*3/8)-30,220,0,
+    app.partyJetpack=button('jetpack',(app.width/2)+(app.width*3/8)-30,220,200,
                              app.partyJetpackImage,jetpackFunction)
     app.selectedJetpack=None
     app.buttonList=[app.magnetism,app.doubleCoins,app.gravityBelt,
@@ -230,6 +230,7 @@ def onStep(app):
             app.bestDistance=app.distance
         app.distance=0
         app.steps=0
+        app.tempSteps=0
         app.totalCoins+=app.thisGameCoins
         app.thisGameCoins=0
         app.zapperList=[]
@@ -397,7 +398,6 @@ def addObjects(app):
         if app.steps%500==0:
             app.tempSteps=0
             app.lasersOn=(not app.lasersOn) 
-            addLaser(app)
         else:
             if app.steps%100==0:
                 if random.randrange(6)==5:
@@ -405,24 +405,24 @@ def addObjects(app):
                 else:
                     app.zappersOn=True
         if app.lasersOn:
-            app.tempSteps+=1
             app.zappersOn=False
             app.missilesOn=False
-            if (app.tempSteps%(1000//app.stepsPerSecond)==0):
+            if (app.tempSteps%(1000//app.stepsPerSecond)==0 or app.tempSteps==0):
                 addLaser(app)
-        else:
             app.tempSteps+=1
+        else:
             if app.zappersOn:
                 if (app.tempSteps%(500//app.stepsPerSecond)==0 and 
-                    app.laserList==[] and app.tempSteps<=450):
+                    app.laserList==[] and app.tempSteps<=480):
                     addZapper(app)
                 if (app.tempSteps%(1000//app.stepsPerSecond)==0 and 
-                    app.laserList==[] and app.tempSteps<=450):
+                    app.laserList==[] and app.tempSteps<=480):
                     addMissile(app)
             else:
                 if (app.tempSteps%(200//app.stepsPerSecond)==0 and 
-                    app.laserList==[] and app.tempSteps<=450):
+                    app.laserList==[] and app.tempSteps<=480):
                     addMissile(app)
+            app.tempSteps+=1
         if app.coinsOn:
             if app.steps%50==0:
                 addCoinList(app)
@@ -433,10 +433,10 @@ def redrawAll(app):
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=50,fill='red',
                       border='black',bold=True)
-        drawLabel(f'{app.distance} M',app.width-70,20,size=20,fill='white',
-                  border='black',borderWidth=1,bold=True)
-        drawLabel(f'{app.thisGameCoins}',30,20,size=20,fill='gold',
-                  border='black',borderWidth=1,bold=True)
+        drawLabel(f'{app.distance} M',app.width-20,20,size=23,fill='white',
+                  border='black',borderWidth=1,bold=True,align='right')
+        drawLabel(f'{app.thisGameCoins}',20,20,size=23,fill='gold',
+                  border='black',borderWidth=1,bold=True,align='left')
         if app.selectedGadget!=None:
             drawImage(app.selectedGadget.image,(app.width/2),20,
                     width=app.width/18,height=app.width/18,align='center')
@@ -477,14 +477,16 @@ def drawMissileGraphic(app):
         if missile.type==0:
             if not missile.activated:
                 drawImage(app.redMissileWarning,app.width-missile.radius-5,
-                app.playerCy-2,width=missile.radius*2.5,height=missile.radius*2.5,align='center')
+                app.playerCy-2,width=missile.radius*2.5,
+                height=missile.radius*2.5,align='center')
             else:
                 drawImage(app.fastRedMissile,missile.posX,missile.height,
                 width=missile.radius*4,height=missile.radius*4.25,align='center')
         else:
             if not missile.activated:
                 drawImage(app.blueMissileWarning,app.width-missile.radius-5,
-                app.playerCy,width=missile.radius*2.5,height=missile.radius*2.5,align='center')
+                app.playerCy,width=missile.radius*2.5,height=missile.radius*2.5,
+                align='center')
             else:
                 drawImage(app.slowBlueMissile,missile.posX,missile.height+2,
                 width=missile.radius*4,height=missile.radius*4.5,align='center')
