@@ -256,7 +256,6 @@ def onStep(app):
             moveBackground(app)
             movePlayer(app)
             moveObjects(app)
-            #app.playingScreen to the left and loop image
             addObjects(app)
             movePath(app)
             app.distance+=1
@@ -301,7 +300,7 @@ def pathFind(app):
     return findPath(app,app.nextPossibleY,app.width-
                 (cellWidth*19/2),[])
 
-##will pathFind x steps into the future    
+##will pathFind L steps into the future    
 def findPath(app,possibleY,x,L):
     cellWidth,cellHeight=getCellSize(app)
     if len(L)==11:
