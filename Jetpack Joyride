@@ -65,13 +65,13 @@ def onAppStart(app):
     ##angel
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a8/Party_Jetpack_%28icon%29.jpg/revision/latest?cb=20210326132930
     app.partyJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/party.png'
-    app.balloonJetpack=button('jetpack',(app.width/2)-30,220,50,
+    app.balloonJetpack=button('jetpack',(app.width/2)-30,220,0,
                               app.balloonJetpackImage,jetpackFunction)
-    app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8)-30,220,100,
+    app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8)-30,220,0,
                             app.teddyJetpackImage,jetpackFunction)
-    app.rocketJetpack=button('jetpack',(app.width/2)+(app.width/4)-30,220,150,
+    app.rocketJetpack=button('jetpack',(app.width/2)+(app.width/4)-30,220,0,
                              app.rocketJetpackImage,jetpackFunction)
-    app.partyJetpack=button('jetpack',(app.width/2)+(app.width*3/8)-30,220,200,
+    app.partyJetpack=button('jetpack',(app.width/2)+(app.width*3/8)-30,220,0,
                              app.partyJetpackImage,jetpackFunction)
     app.selectedJetpack=None
     app.buttonList=[app.magnetism,app.doubleCoins,app.gravityBelt,
@@ -219,14 +219,13 @@ def onStep(app):
             else:
                 app.playing=False
         if app.path:
-            pass
-        if app.steps%9==0:
-            app.pathIndex=0
-            app.tempPathList=pathFind(app)
-        if app.tempPathList!=[]:
-            app.pathList.append(pathCoordinate(app.width-
-                cellWidth*17/2,app.tempPathList[app.pathIndex]))
-        app.pathIndex+=1
+            if app.steps%13==0:
+                app.pathIndex=0
+                app.tempPathList=pathFind(app)
+            if app.tempPathList!=[]:
+                app.pathList.append(pathCoordinate(app.width-
+                    cellWidth*25/2,app.tempPathList[app.pathIndex]))
+            app.pathIndex+=1
         app.player.y=app.playerCy
         app.player.top=app.playerCy-(app.player.width/2)
         app.player.bottom=app.playerCy+(app.player.width/2)
@@ -276,12 +275,12 @@ class pathCoordinate:
 def pathFind(app):
     cellWidth,cellHeight=getCellSize(app)
     return findPath(app,app.height/2,app.width-
-                (cellWidth*17/2),[])
+                (cellWidth*25/2),[])
 
 ##will pathFind x steps into the future    
 def findPath(app,possibleY,x,L):
     cellWidth,cellHeight=getCellSize(app)
-    if len(L)==9:
+    if len(L)==13:
         return L
     else:
         for direction in range(-1,2):
@@ -322,17 +321,24 @@ def doesNotCollide(app,possibleY,x,L):
         if (distance(x,possibleY,missile.posX,missile.height)<
             app.playerRadius+missile.radius+15):
             return False
+    steps=app.steps
     for laser in app.laserList:
         height=laser.height
         moving=laser.moving
         for i in range (len(L)+1):
-            height+=moving*15
+            height+=moving*8
             if ((height+cellHeight>app.boardTop+app.height)or
                 (height<app.boardTop)):
                 moving=-moving
+        if (steps+len(L)-laser.time)>20:
+            activated=True
+        elif(steps+len(L)-laser.time)>60:
+            activated=False
+        else:
+            activated=laser.activated
         if (((abs(height-possibleY)<=app.playerRadius)or
             (abs(possibleY-(height+cellHeight))<=app.playerRadius))
-            and(laser.activated)):
+            and activated):
             return False
     return True
 
@@ -529,7 +535,7 @@ def redrawAll(app):
         if app.selectedGadget!=None:
             drawImage(app.selectedGadget.image,(app.width/2),20,
                     width=app.width/18,height=app.width/18,align='center')
-        drawBoard(app)
+        #drawBoard(app)
         #drawPlayerHitbox(app)
         drawObjects(app)
         drawCoinGraphic(app)
@@ -846,12 +852,6 @@ def addLaser(app):
     randomDirection=random.randrange(2)
     if randomDirection==0:
         randomDirection=-1
-    # for laser in app.laserList:
-    #     if ((laser.height-cellHeight<=randomHeight and 
-    #          randomHeight<=laser.height)or
-    #          (laser.height+(2*cellHeight)>=randomHeight and
-    #           randomHeight>=laser.height)):
-    #         addLaser(app)
     app.laserList.append(laser(randomHeight,app.steps,randomDirection))
 
 ##coins
