@@ -227,6 +227,8 @@ def onStep(app):
             app.startingMusic.play(loop=True)
         else:
             app.startingMusic.pause()
+            app.menuMusic.pause()
+            app.inGameMusic.play(loop=True)
             if app.playerCx<(app.boardWidth//app.cols)*4:
                 app.playerCx+=3
                 app.player.x+=3
@@ -238,8 +240,6 @@ def onStep(app):
                 app.player.left=app.player.x-(app.player.width/2)
                 app.player.right=app.player.x+(app.player.width/2)
             cellWidth,cellHeight=getCellSize(app)
-            app.menuMusic.pause()
-            app.inGameMusic.play(loop=True)
             if app.gameOver:
                 app.boosting=False
                 if (app.stepsPerSecond>1):
