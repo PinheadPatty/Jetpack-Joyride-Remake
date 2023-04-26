@@ -1,6 +1,14 @@
 from cmu_graphics import *
 import math
 import random
+import os,pathlib
+
+##Sound
+#from Shawn
+def loadSound(relativePath):
+    absolutePath = os.path.abspath(relativePath)
+    url = pathlib.Path(absolutePath).as_uri()
+    return Sound(url)
 
 def onAppStart(app):
     app.BestDistance=0
@@ -157,14 +165,18 @@ def onAppStart(app):
     app.menuBackground='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuBackground.png'
     ##https://static.vecteezy.com/system/resources/previews/008/450/119/non_2x/hologram-podium-futuristic-circle-blue-hud-podium-modern-technology-gaming-vector.jpg
     app.hologram='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/hologram.jpg'
+    ##startingMusic
+    ##https://vgmsite.com/soundtracks/jetpack-joyride/pudooxfw/Title%20Screen%20%28JJ%29.mp3
+    startingMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/startingMusic.mp3'
+    app.startingMusic=loadSound(startingMusic)
     ##inGameMusic
     ##https://vgmsite.com/soundtracks/jetpack-joyride/nrledqme/Jetpack%20Joyride.mp3
     inGameMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/inGameMusic.mp3'
-    #app.inGameMusic=Sound(inGameMusic)
+    app.inGameMusic=loadSound(inGameMusic)
     ##menuMusic
     ##https://downloads.khinsider.com/cp/add_album/10524
     menuMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuMusic.mp3'
-    #app.menuMusic=Sound(app.menuMusic)
+    app.menuMusic=loadSound(menuMusic)
 
 class player:
     def __init__(self,app):
@@ -212,8 +224,9 @@ def onMousePress(app,mouseX,mouseY):
 def onStep(app):
     if app.playing:
         if app.firstStart:
-            pass
+            app.startingMusic.play(loop=True)
         else:
+            app.startingMusic.pause()
             if app.playerCx<(app.boardWidth//app.cols)*4:
                 app.playerCx+=3
                 app.player.x+=3
@@ -225,16 +238,16 @@ def onStep(app):
                 app.player.left=app.player.x-(app.player.width/2)
                 app.player.right=app.player.x+(app.player.width/2)
             cellWidth,cellHeight=getCellSize(app)
-            #app.menuMusic.pause()
-            #app.inGameMusic.play(loop=True)
+            app.menuMusic.pause()
+            app.inGameMusic.play(loop=True)
             if app.gameOver:
                 app.boosting=False
-                #app.inGameMusic.pause()
-                #app.menuMusic.play(loop=True)
                 if (app.stepsPerSecond>1):
                     if app.grounded:
                         app.stepsPerSecond/=1.3
                 else:
+                    app.inGameMusic.pause()
+                    app.menuMusic.play(loop=True)
                     app.playing=False
             if app.path:
                 if app.steps%11==0:
@@ -245,7 +258,7 @@ def onStep(app):
                 else:
                     app.nextPossibleY=app.tempPathList[10]
                     app.pathList.append(pathCoordinate(app.width-
-                        cellWidth*21/2,app.tempPathList[app.pathIndex]))
+                        cellWidth*19/2,app.tempPathList[app.pathIndex]))
                 app.pathIndex+=1
             app.player.y=app.playerCy
             app.player.top=app.playerCy-(app.player.width/2)
@@ -344,7 +357,6 @@ def doesNotCollide(app,possibleY,x,L):
         if (distance(x,possibleY,missile.posX,missile.height)<
             app.playerRadius+missile.radius+25):
             return False
-    steps=app.steps
     for laser in app.laserList:
         height=laser.height
         moving=laser.moving
@@ -353,14 +365,14 @@ def doesNotCollide(app,possibleY,x,L):
             if ((height+cellHeight>app.boardTop+app.height)or
                 (height<app.boardTop)):
                 moving=-moving
-        if (steps+len(L)-laser.time)>20:
+        if (len(L)+laser.time+1)>25:
             activated=True
-        elif(steps+len(L)-laser.time)>35:
+        elif(len(L)-laser.time+1)>60:
             activated=False
         else:
             activated=laser.activated
-        if ((((abs(height-possibleY)<=app.playerRadius+40)and moving==-1)or
-            ((abs(possibleY-(height+cellHeight))<=app.playerRadius+40)and moving==1))
+        if ((((abs(height-possibleY)<=app.playerRadius+50)and moving==-1)or
+            ((abs(possibleY-(height+cellHeight))<=app.playerRadius+50)and moving==1))
             and activated):
             return False
     return True
@@ -490,13 +502,14 @@ def moveObjects(app):
             (laser.height+cellHeight>app.boardTop+app.boardHeight)):
             laser.moving=-laser.moving
         laser.height+=4*laser.moving
+        laser.time+=1
     for laser in app.laserList:        
-        if ((app.steps-laser.time)>40):
+        if ((laser.time)>35):
             laser.activated=True
         else:
             laser.activated=False
     for laser in app.laserList:
-        if (app.steps-laser.time>80):
+        if (laser.time>80):
             app.laserList.remove(laser)
     for coinList in app.allCoinsList:
         for coin in coinList:
@@ -881,7 +894,7 @@ def addLaser(app):
     randomDirection=random.randrange(2)
     if randomDirection==0:
         randomDirection=-1
-    app.laserList.append(laser(randomHeight,app.steps,randomDirection))
+    app.laserList.append(laser(randomHeight,0,randomDirection))
 
 ##coins
 class coin:
