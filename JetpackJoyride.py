@@ -175,7 +175,7 @@ def onAppStart(app):
     inGameMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/inGameMusic.mp3'
     app.inGameMusic=loadSound(inGameMusic)
     ##menuMusic
-    ##https://downloads.khinsider.com/cp/add_album/10524
+    ##https://vgmsite.com/soundtracks/jetpack-joyride/pflltwhe/Item%20Shop%20%28JJ%29.mp3
     menuMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuMusic.mp3'
     app.menuMusic=loadSound(menuMusic)
 
