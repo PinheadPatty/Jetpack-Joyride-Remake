@@ -2,7 +2,8 @@ from cmu_graphics import *
 import math
 import random
 import os,pathlib
-
+##Recreated from the original Jetpack Joyride by 'Halfbrick'
+#https://www.halfbrick.com/games/jetpack-joyride
 ##Sound
 #from Shawn (TA)
 def loadSound(relativePath):
@@ -159,7 +160,7 @@ def onAppStart(app):
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/ad/Dezapinator.PNG/revision/latest/thumbnail/width/360/height/360?cb=20120526011759
     app.zapperEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperEnd.png'
     ##background
-    ##in game background was drawn based off of the original game by 'Halfbrick Studios'
+    ##in game background was drawn based off of the original game by 'Halfbrick'
     ##menu background
     ##https://static.tvtropes.org/pmwiki/pub/images/lrscientists.png
     app.menuBackground='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuBackground.png'
@@ -279,29 +280,32 @@ def onStep(app):
         app.stepsPerSecond=10
         if app.distance>=app.bestDistance:
             app.bestDistance=app.distance
-        app.playerCx=-app.playerRadius-3
-        app.playerCy=app.boardTop+app.boardHeight-(app.playerRadius)
-        app.nextPossibleY=app.height/2
-        app.distance=0
-        app.steps=0
-        app.tempSteps=0
-        app.totalCoins+=app.thisGameCoins
-        app.thisGameCoins=0
-        app.zapperList=[]
-        app.missileList=[]
-        app.laserList=[]
-        app.coinList=[]
-        app.pathList=[]
-        app.tempPathlist=[]
-        app.pathIndex=0
-        app.board=[([None]*app.cols) for row in range(app.rows)]
-        app.zapped=False
-        app.burnt=False
-        app.zappersOn=True
-        app.missilesOn=False
-        app.lasersOn=False
-        app.coinsOn=True
-        app.inMenus=True
+        resetApp(app)
+
+def resetApp(app):
+    app.playerCx=-app.playerRadius-3
+    app.playerCy=app.boardTop+app.boardHeight-(app.playerRadius)
+    app.nextPossibleY=app.height/2
+    app.distance=0
+    app.steps=0
+    app.tempSteps=0
+    app.totalCoins+=app.thisGameCoins
+    app.thisGameCoins=0
+    app.zapperList=[]
+    app.missileList=[]
+    app.laserList=[]
+    app.coinList=[]
+    app.pathList=[]
+    app.tempPathlist=[]
+    app.pathIndex=0
+    app.board=[([None]*app.cols) for row in range(app.rows)]
+    app.zapped=False
+    app.burnt=False
+    app.zappersOn=True
+    app.missilesOn=False
+    app.lasersOn=False
+    app.coinsOn=True
+    app.inMenus=True
 
 class pathCoordinate:
     def __init__(self,x,y):
@@ -562,7 +566,6 @@ def redrawAll(app):
     if app.playing:
         if app.firstStart:
             drawFirstStart(app)
-        cellWidth, cellHeight = getCellSize(app)
         if app.gameOver:
             drawLabel('GAME OVER',app.width/2,app.height/3,size=50,fill='red',
                       border='black',bold=True)
