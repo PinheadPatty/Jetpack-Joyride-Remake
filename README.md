@@ -54,6 +54,7 @@ Some earlier versions may work, but later versions will not. Follow the steps be
      nano ~/.zshrc   # for zsh
      ```
    - Add the following line:
+   - NOTE: replace '/usr/local/bin' with the path from 'which python3.10' command
      ```sh
      export PATH="/usr/local/bin:$PATH"
      ```
