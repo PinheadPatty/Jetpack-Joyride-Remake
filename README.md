@@ -11,7 +11,7 @@ Some earlier versions may work, but later versions will not. Follow the steps be
 #### On Windows
 
 ```sh
-1. Download Python 3.10 from the [official website]([https://www.python.org/downloads/release/python-3100/](url)).
+1. Download Python 3.10 from the [official website](https://www.python.org/downloads/release/python-3100/).
 2. Install Python 3.10 and make sure to check the option "Add Python to PATH" during installation.
 3. Verify the installation by opening Command Prompt and typing:
 ```
