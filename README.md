@@ -11,7 +11,7 @@ Some earlier versions may work, but later versions will not. Follow the steps be
 #### On Windows
 
 ```sh
-1. Download Python 3.10 from the [official website](https://www.python.org/downloads/release/python-3100/).
+1. Download Python 3.10 from the [official website]([https://www.python.org/downloads/release/python-3100/](url)).
 2. Install Python 3.10 and make sure to check the option "Add Python to PATH" during installation.
 3. Verify the installation by opening Command Prompt and typing:
 ```
@@ -36,6 +36,19 @@ Some earlier versions may work, but later versions will not. Follow the steps be
    ```sh
    python3.10 --version
    ```
+   NOTE: if this does not work you may also try:
+   ```sh
+   python --version
+   ```
+   In this case you may have to use
+   ```sh
+   python JetpackJoyride.py
+   ```
+   or use the entire path:
+   ```sh
+   path/to/python.exe JetpackJoyride.py
+   ```
+   when RUNNING THE GAME.
 
 #### On macOS and Linux
 
