@@ -42,12 +42,12 @@ Some earlier versions may work, but later versions will not. Follow the steps be
 ```sh
 1. Download Python 3.10 from the [official website](https://www.python.org/downloads/release/python-3100/).
 2. Install Python 3.10.
-3. Find the installation path:
 ```
+#### SKIP to RUNNING THE GAME and come back if it cannot find python3.10
+3. Find the installation path:
    ```sh
    which python3.10
    ```
-SKIP to RUNNING THE GAME and come back if it cannot find python3.10
 4. Add the path to your shell profile:
    - Open your shell profile file in a text editor (`~/.bashrc`, `~/.zshrc`, or `~/.bash_profile`):
      ```sh
