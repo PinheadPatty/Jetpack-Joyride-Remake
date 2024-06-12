@@ -44,17 +44,17 @@ def onAppStart(app):
     app.player=player(app)
     ##magnet
     ##https://www.freeiconspng.com/img/45627
-    app.magnetImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/magnet.png'
+    app.magnetImage='pictures_and_music/magnet.png'
     ##coins
     ##https://wikoles.net/uploads/posts/2022-09/jetpack-joyride-1.webp
-    app.coinImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/coin.png'
-    app.doubleCoinsImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/doubleCoin.png'
+    app.coinImage='pictures_and_music/coin.png'
+    app.doubleCoinsImage='pictures_and_music/doubleCoin.png'
     ##gravityBelt
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a2/GravityBelt.png/revision/latest?cb=20120428052909
-    app.gravityBeltImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/gravityBelt.png'
+    app.gravityBeltImage='pictures_and_music/gravityBelt.png'
     ##pathFinder
     ##https://static.wikia.nocookie.net/speed-city/images/c/c6/GreenCircleIMG.png/revision/latest?cb=20190304214856
-    app.pathFinderImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/pathFinder.png'
+    app.pathFinderImage='pictures_and_music/pathFinder.png'
     app.magnetism=button('gadget',(app.width/2)-30,70,50,app.magnetImage,magnetismGadgetToggle)
     app.doubleCoins=button('gadget',(app.width/2)+(app.width/8)-30,70,100,app.doubleCoinsImage,doubleCoinsGadgetToggle)
     app.gravityBelt=button('gadget',(app.width/2)+(app.width/4)-30,70,150,app.gravityBeltImage,gravityBeltGadgetToggle)
@@ -62,19 +62,19 @@ def onAppStart(app):
     app.selectedGadget=None
     ##default
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/c/c8/Machine_Gun_Jetpack_%28Icon%29.jpg/revision/latest?cb=20210326125315
-    app.defaultJetpack='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/default.png'
+    app.defaultJetpack='pictures_and_music/default.png'
     ##balloon
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/f/fb/DIY_Jetpack_%28icon%29.jpg/revision/latest?cb=20210326125613
-    app.balloonJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/balloon.png'
+    app.balloonJetpackImage='pictures_and_music/balloon.png'
     ##teddy
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/2/26/Teddy_Jetpack.jpg/revision/latest?cb=20210326125741
-    app.teddyJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/teddy.png'
+    app.teddyJetpackImage='pictures_and_music/teddy.png'
     ##rocket
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/5/5d/Blast_Off_Jetpack_%28icon%29.jpg/revision/latest?cb=20210326130110
-    app.rocketJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/rocket.png'
+    app.rocketJetpackImage='pictures_and_music/rocket.png'
     ##angel
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/a8/Party_Jetpack_%28icon%29.jpg/revision/latest?cb=20210326132930
-    app.partyJetpackImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/party.png'
+    app.partyJetpackImage='pictures_and_music/party.png'
     app.balloonJetpack=button('jetpack',(app.width/2)-30,220,50,
                               app.balloonJetpackImage,jetpackFunction)
     app.teddyJetpack=button('jetpack',(app.width/2)+(app.width/8)-30,220,100,
@@ -124,59 +124,59 @@ def onAppStart(app):
     ##https://express.adobe.com/sp/design/post/urn:aaid:sc:VA6C2:896e421d-5470-4fd2-b5d6-cb0ad68cb17a?workflow=quicktask&qId=remove-background&actionLocation=seo&autoDownload=true
     ##(adobeExpress to remove background for all images)
     ##BARRY SPRITESHEET
-    app.characterSpriteSheet='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/B5BE4421-A864-45FB-9963-808F7BBB49FD_adobe_express.png'
-    app.characterImage1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage1.png'
-    app.characterImage2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage2.png'
-    app.characterImage3='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage3.png'
-    app.characterImage4='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterImage4.png'
+    app.characterSpriteSheet='pictures_and_music/B5BE4421-A864-45FB-9963-808F7BBB49FD_adobe_express.png'
+    app.characterImage1='pictures_and_music/characterImage1.png'
+    app.characterImage2='pictures_and_music/characterImage2.png'
+    app.characterImage3='pictures_and_music/characterImage3.png'
+    app.characterImage4='pictures_and_music/characterImage4.png'
     app.characterImages=[app.characterImage1,app.characterImage2,app.characterImage3,app.characterImage4]
     app.characterImageIndex=0
     app.characterImage=app.characterImage1
-    app.characterBoostImage='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/characterBoostImage.png'
-    app.zapped1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapped1.png'
-    app.zapped2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapped2.png'
-    app.burnt1='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/burnt1.png'
-    app.burnt2='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/burnt2.png'
-    app.ded='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/ded.png'
+    app.characterBoostImage='pictures_and_music/characterBoostImage.png'
+    app.zapped1='pictures_and_music/zapped1.png'
+    app.zapped2='pictures_and_music/zapped2.png'
+    app.burnt1='pictures_and_music/burnt1.png'
+    app.burnt2='pictures_and_music/burnt2.png'
+    app.ded='pictures_and_music/ded.png'
     ##profile
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/1/12/BarrySpriteJJ1.png/revision/latest/scale-to-width-down/250?cb=20210603104616
-    app.profile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/profile.png'
+    app.profile='pictures_and_music/profile.png'
     ##missiles
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/4/42/MissileJammer.png/revision/latest/thumbnail/width/360/height/360?cb=20120428044536
-    app.fastRedMissile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/fastRedMissile.png'
+    app.fastRedMissile='pictures_and_music/fastRedMissile.png'
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/9/94/EzyDodgeMissiles.png/revision/latest/thumbnail/width/360/height/360?cb=20120428172654
-    app.slowBlueMissile='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/slowBlueMissile.png'
+    app.slowBlueMissile='pictures_and_music/slowBlueMissile.png'
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/5/51/About_to_come.png/revision/latest?cb=20120503044614
-    app.redMissileWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/redMissileWarning.png'
-    app.blueMissileWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/blueMissileWarning.png'
+    app.redMissileWarning='pictures_and_music/redMissileWarning.png'
+    app.blueMissileWarning='pictures_and_music/blueMissileWarning.png'
     ##lasers
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/d/d7/Fires_laser.png/revision/latest?cb=20120511034357
-    app.laserEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserEnd.png'
+    app.laserEnd='pictures_and_music/laserEnd.png'
     ##https://i.imgur.com/zAtRU1W.jpg
-    app.laserWarning='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserWarning.png'
+    app.laserWarning='pictures_and_music/laserWarning.png'
     ##https://cdn.mobygames.com/screenshots/16820647-jetpack-joyride-ipad-beware-of-flashing-lasers.png
-    app.laserActive='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/laserActive.png'
+    app.laserActive='pictures_and_music/laserActive.png'
     ##zappers
     ##https://static.wikia.nocookie.net/jetpackjoyride/images/a/ad/Dezapinator.PNG/revision/latest/thumbnail/width/360/height/360?cb=20120526011759
-    app.zapperEnd='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/zapperEnd.png'
+    app.zapperEnd='pictures_and_music/zapperEnd.png'
     ##background
     ##in game background was drawn based off of the original game by 'Halfbrick'
     ##menu background
     ##https://static.tvtropes.org/pmwiki/pub/images/lrscientists.png
-    app.menuBackground='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuBackground.png'
+    app.menuBackground='pictures_and_music/menuBackground.png'
     ##https://static.vecteezy.com/system/resources/previews/008/450/119/non_2x/hologram-podium-futuristic-circle-blue-hud-podium-modern-technology-gaming-vector.jpg
-    app.hologram='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/hologram.jpg'
+    app.hologram='pictures_and_music/hologram.jpg'
     ##startingMusic
     ##https://vgmsite.com/soundtracks/jetpack-joyride/pudooxfw/Title%20Screen%20%28JJ%29.mp3
-    startingMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/startingMusic.mp3'
+    startingMusic='pictures_and_music/startingMusic.mp3'
     app.startingMusic=loadSound(startingMusic)
     ##inGameMusic
     ##https://vgmsite.com/soundtracks/jetpack-joyride/nrledqme/Jetpack%20Joyride.mp3
-    inGameMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/inGameMusic.mp3'
+    inGameMusic='pictures_and_music/inGameMusic.mp3'
     app.inGameMusic=loadSound(inGameMusic)
     ##menuMusic
     ##https://vgmsite.com/soundtracks/jetpack-joyride/pflltwhe/Item%20Shop%20%28JJ%29.mp3
-    menuMusic='/Users/patlucas/Desktop/15-112/15-112-Term-Project-1/menuMusic.mp3'
+    menuMusic='pictures_and_music/menuMusic.mp3'
     app.menuMusic=loadSound(menuMusic)
 
 class player:
